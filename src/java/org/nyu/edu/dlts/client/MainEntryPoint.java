@@ -222,12 +222,13 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
         cp.setAnimCollapse(false);
         cp.setHeadingText("Archon Schema");
         container.add(cp);
-        container.setActiveWidget(cp);
 
         // Create the store that the contains the schema data
         ListStore<SchemaData> storeAR = new ListStore<SchemaData>(dp.id());
         storeAR.addSortInfo(new StoreSortInfo<SchemaData>(dp.name(), SortDir.ASC));
-        storeAR.add(new SchemaData("Loading Archon Schema Data, Please wait ...", null));
+        SchemaData tempData = new SchemaData("Loading Archon Schema Data, Please wait ...", null);
+        tempData.setType(SchemaData.AR_TYPE);
+        storeAR.add(tempData);
 
         // Create the tree using the store and value provider for the name field
         schemaListViewAR = new ListView<SchemaData, String>(storeAR, dp.name());
@@ -237,7 +238,7 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
         // add Archive Space schema list view
         cp = new ContentPanel(appearance);
         cp.setAnimCollapse(false);
-        cp.setHeadingText("ASpace Schemas");
+        cp.setHeadingText("ASpace Schema");
         container.add(cp);
 
         // Create the store and list view for archive space schema data
@@ -287,6 +288,24 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
                 System.out.println("Error loading AT schema data");
             }
         };
+        
+        // Create an asynchronous callback to handle the Archon schema data
+        AsyncCallback<ArrayList<SchemaData>> callbackAR = new AsyncCallback<ArrayList<SchemaData>>() {
+
+            public void onSuccess(ArrayList<SchemaData> result) {
+                if(result != null) {
+                    schemaListViewAR.getStore().clear();
+                    schemaListViewAR.getStore().addAll(result);
+                    System.out.println("Loaded Archon Schema data: " + result.size());
+                } else {
+                    System.out.println("No Archon Schema data found ...");
+                }
+            }
+
+            public void onFailure(Throwable caught) {
+                System.out.println("Error loading Archon schema data");
+            }
+        };
 
         // Create an asynchronous callback to handle the result.
         AsyncCallback<ArrayList<SchemaData>> callbackAS = new AsyncCallback<ArrayList<SchemaData>>() {
@@ -308,6 +327,7 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
         // make the call to service 
         SchemaDataServiceAsync service = getService();
         service.getSchemaDataAT(callbackAT);
+        service.getSchemaDataAR(callbackAR);
         service.getSchemaDataAS(callbackAS);
     }
     

@@ -28,6 +28,8 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
     // hashmap for storing field information
     private ArrayList<SchemaData> schemaDataMapAT = null;
     
+    private ArrayList<SchemaData> schemaDataMapAR = null;
+    
     private ArrayList<SchemaData> schemaDataMapAS = null;
     
     public String myMethod(String s) {
@@ -49,10 +51,13 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
             // set the index uri for AT
             ATSchemaUtils.setIndexPath(indexPath);
             
-            // set the index uri and url for ASpace docs
-            String docURL = "http://hudmol.github.com/archivesspace/doc";
-            indexPath = context.getRealPath("/schemas/AS/index.txt");
+            // set the index url for Archon
+            indexPath = "http://hudmol.github.com/archivesspace/doc/index.txt";
+            ArchonSchemaUtils.setIndexPath(indexPath);
             
+            // set the index uri and url for ASpace docs
+            indexPath = context.getRealPath("/schemas/AS/index.txt");
+            String docURL = "http://hudmol.github.com/archivesspace/doc";
             ASpaceSchemaUtils.setIndexPath(indexPath, docURL);
         } catch (Exception ex) {
             Logger.getLogger(SchemaDataServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
@@ -84,6 +89,41 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
             }
             
             return schemaDataMapAT;
+        } catch (Exception ex) {
+            Logger.getLogger(SchemaDataServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            
+            return null;
+        }
+    }
+    
+    /**
+     * Load schema fields by calling the utils method
+     * 
+     * @return HashMap containing FieldList
+     */
+    public ArrayList<SchemaData> getSchemaDataAR() {
+        try {
+            // debug code to force ARChone schema data to reload always
+            schemaDataMapAR = null;
+            
+            if(schemaDataMapAR == null) {
+                schemaDataMapAR = new ArrayList<SchemaData>();
+                
+                HashMap<String, ArrayList<String>> fieldsMap = ATSchemaUtils.processSchemaIndex();
+                
+                // process all the the entries
+                for(String schemaName: fieldsMap.keySet()) {
+                    ArrayList<String> fieldInfo = fieldsMap.get(schemaName);
+                    Collections.sort(fieldInfo);
+                    
+                    ArrayList<SchemaDataField> schemaDataFields = getSchemaDataFields(fieldInfo);
+                    SchemaData schemaData = new SchemaData(schemaName, schemaDataFields);
+                    schemaData.setType(SchemaData.AR_TYPE);
+                    schemaDataMapAR.add(schemaData);
+                }
+            }
+            
+            return schemaDataMapAR;
         } catch (Exception ex) {
             Logger.getLogger(SchemaDataServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             

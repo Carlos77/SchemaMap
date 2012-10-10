@@ -111,7 +111,8 @@ public class SchemaDataInfoPanel implements IsWidget {
         container.add(fp, new VerticalLayoutData(-1, -1, new Margins(4)));
 
         // TO-DO if the person is logged in then display this
-        if (MainEntryPoint.loggedIn && schemaData.getType().equals(SchemaData.AT_TYPE)) {
+        if (MainEntryPoint.loggedIn && (schemaData.getType().equals(SchemaData.AT_TYPE) || 
+                schemaData.getType().equals(SchemaData.AR_TYPE))) {
             container.add(getEditPanel(grid), new VerticalLayoutData(-1, -1, new Margins(4)));
         }
 

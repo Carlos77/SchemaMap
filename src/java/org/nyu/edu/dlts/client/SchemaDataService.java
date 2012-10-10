@@ -21,6 +21,8 @@ public interface SchemaDataService extends RemoteService {
     
     public ArrayList<SchemaData> getSchemaDataAT();
     
+    public ArrayList<SchemaData> getSchemaDataAR();
+    
     public ArrayList<SchemaData> getSchemaDataAS();
     
     public String authorize(String username, String password);

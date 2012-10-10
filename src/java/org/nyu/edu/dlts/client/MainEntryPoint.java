@@ -137,7 +137,7 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
 
         BoxLayoutData flex = new BoxLayoutData(new Margins(0, 5, 0, 0));
         flex.setFlex(1);
-        HTML html = new HTML("<b>Archive Space -- Archivists Toolkit -- Archon Field Mapper</b> v0.2");
+        HTML html = new HTML("<b>Archive Space -- Archivists Toolkit -- Archon Data Field Mapper</b> v0.2");
         container.add(html, flex);
         
         // add the html that hold the login information

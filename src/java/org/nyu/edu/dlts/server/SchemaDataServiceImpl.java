@@ -106,10 +106,10 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
             // debug code to force ARChone schema data to reload always
             schemaDataMapAR = null;
             
-            if(schemaDataMapAR == null) {
+            /*if(schemaDataMapAR == null) {
                 schemaDataMapAR = new ArrayList<SchemaData>();
                 
-                HashMap<String, ArrayList<String>> fieldsMap = ATSchemaUtils.processSchemaIndex();
+                HashMap<String, ArrayList<String>> fieldsMap = ArchonSchemaUtils.processSchemaIndex();
                 
                 // process all the the entries
                 for(String schemaName: fieldsMap.keySet()) {
@@ -121,7 +121,7 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
                     schemaData.setType(SchemaData.AR_TYPE);
                     schemaDataMapAR.add(schemaData);
                 }
-            }
+            }*/
             
             return schemaDataMapAR;
         } catch (Exception ex) {

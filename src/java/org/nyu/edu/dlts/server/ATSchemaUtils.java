@@ -1,5 +1,6 @@
 package org.nyu.edu.dlts.server;
 
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,8 +30,9 @@ public class ATSchemaUtils {
      * @param indexURI 
      */
     public static void setIndexPath(String filepath) {
+        String replaceString = File.separator + "index.txt";
         indexPath = filepath;
-        path = indexPath.replace("/index.txt", "");
+        path = indexPath.replace(replaceString, "");
     }
 
     /**
@@ -57,7 +59,7 @@ public class ATSchemaUtils {
                 System.out.println("Schema Name: " + schemaName);
 
                 // get the data fields from the schema files on the server
-                String schemaFileURI = path + "/" + line;
+                String schemaFileURI = path + File.separator + line;
 
                 HashMap<String, ArrayList<String>> currentSchemaFieldsMap = getDataFields(schemaFileURI);
 

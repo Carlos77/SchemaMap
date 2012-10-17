@@ -54,7 +54,7 @@ public class ASpaceSchemaUtils {
 
         HttpEntity entity = response.getEntity();*/
 
-        String fileContent = FileReaderUtil.readFile(indexPath);
+        String fileContent = FileUtil.readFileContent(indexPath);
         
         if (fileContent != null) {
 

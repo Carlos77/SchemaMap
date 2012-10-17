@@ -46,6 +46,9 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
         ServletContext context = getServletConfig().getServletContext();
         
         try {
+            String saveDirectory = context.getRealPath("/schemas");
+            FileUtil.saveDirectory = saveDirectory;
+            
             String indexPath = context.getRealPath("/schemas/AT/index.txt");
             
             // set the index uri for AT
@@ -86,6 +89,9 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
                     schemaData.setType(SchemaData.AT_TYPE);
                     schemaDataMapAT.add(schemaData);
                 }
+                
+                // save the list now
+                FileUtil.saveSchemaDataList(schemaDataMapAT);
             }
             
             return schemaDataMapAT;
@@ -153,6 +159,9 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
                     schemaData.setType(SchemaData.AS_TYPE);
                     schemaDataMapAS.add(schemaData);
                 }
+                
+                // save the list now
+                FileUtil.saveSchemaDataList(schemaDataMapAS);
             }
             
             return schemaDataMapAS;

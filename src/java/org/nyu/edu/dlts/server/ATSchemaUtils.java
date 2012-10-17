@@ -3,11 +3,14 @@ package org.nyu.edu.dlts.server;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import org.nyu.edu.dlts.client.model.SchemaData;
+import org.nyu.edu.dlts.client.model.SchemaDataField;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -44,7 +47,7 @@ public class ATSchemaUtils {
         // stores the field information
         HashMap<String, ArrayList<String>> fieldsMap = new HashMap<String, ArrayList<String>>();
 
-        String fileContent = FileReaderUtil.readFile(indexPath);
+        String fileContent = FileUtil.readFileContent(indexPath);
 
         if (fileContent != null) {
 
@@ -136,10 +139,10 @@ public class ATSchemaUtils {
                 fieldsList.add(setInfo);
                 System.out.println("Set Info: " + setInfo);
             }
-            
+
             // Get any many to one, such as the repository
             NodeList manyToOneList = classElement.getElementsByTagName("many-to-one");
-            
+
             for (int j = 0; j < manyToOneList.getLength(); j++) {
                 Element mtoElement = (Element) manyToOneList.item(j);
 
@@ -179,7 +182,7 @@ public class ATSchemaUtils {
      */
     private static String upperCaseFieldName(String fieldName) {
         final StringBuilder result = new StringBuilder(fieldName.length());
-        
+
         result.append(Character.toUpperCase(fieldName.charAt(0))).append(fieldName.substring(1));
 
         return result.toString();
@@ -192,12 +195,43 @@ public class ATSchemaUtils {
      */
     public static void main(String[] args) {
         String ip = "/Users/nathan/NetBeansProjects/SchemaMap/web/schemas/AT/index.txt";
+        String sd = "/Users/nathan/NetBeansProjects/SchemaMap/web/schemas";
+        FileUtil.saveDirectory = sd;
+
         ATSchemaUtils.setIndexPath(ip);
 
         ATSchemaUtils schemaUtils = new ATSchemaUtils();
 
         try {
-            schemaUtils.processSchemaIndex();
+            ArrayList<SchemaData> schemaDataMapAT = FileUtil.getSchemaDataList(SchemaData.AT_TYPE);
+            
+            schemaDataMapAT = new ArrayList<SchemaData>();
+            HashMap<String, ArrayList<String>> fieldsMap = schemaUtils.processSchemaIndex();
+
+            // process all the the entries
+            for (String schemaName : fieldsMap.keySet()) {
+                ArrayList<String> fieldInfo = fieldsMap.get(schemaName);
+                Collections.sort(fieldInfo);
+
+                ArrayList<SchemaDataField> schemaDataFields = new ArrayList<SchemaDataField>();
+
+                for (String info : fieldInfo) {
+                    String[] sa = info.split("\\s*,\\s*");
+                    String name = sa[0];
+                    String type = sa[1];
+
+                    SchemaDataField schemaDataField = new SchemaDataField(name, type);
+                    schemaDataFields.add(schemaDataField);
+                }
+
+                SchemaData schemaData = new SchemaData(schemaName, schemaDataFields);
+                schemaData.setType(SchemaData.AT_TYPE);
+                schemaDataMapAT.add(schemaData);
+            }
+            
+            // try saving it
+            FileUtil.saveSchemaDataList(schemaDataMapAT);
+
         } catch (Exception ex) {
             Logger.getLogger(ATSchemaUtils.class.getName()).log(Level.SEVERE, null, ex);
         }

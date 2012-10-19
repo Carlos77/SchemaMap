@@ -6,12 +6,8 @@ package org.nyu.edu.dlts.server;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,17 +21,15 @@ import org.nyu.edu.dlts.client.model.SchemaDataField;
  * @author nathan
  */
 public class SchemaDataServiceImpl extends RemoteServiceServlet implements SchemaDataService {
-    // hashmap for storing field information
+    // Array List for storing field information
     private ArrayList<SchemaData> schemaDataMapAT = null;
     
     private ArrayList<SchemaData> schemaDataMapAR = null;
     
     private ArrayList<SchemaData> schemaDataMapAS = null;
     
-    public String myMethod(String s) {
-        // Do something interesting with 's' here on the server.
-        return "Server says: " + s;
-    }
+    // Hashmap for storing the mapping information for the fields 
+    private HashMap<String, String> mappingInfo = new HashMap<String, String>();
     
     /**
      * Setup the url for accessing the schema list
@@ -62,6 +56,13 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
             indexPath = context.getRealPath("/schemas/AS/index.txt");
             String docURL = "http://hudmol.github.com/archivesspace/doc";
             ASpaceSchemaUtils.setIndexPath(indexPath, docURL);
+            
+            // load the stored mapping information
+            HashMap<String, String> savedMappingInfo = FileUtil.getMappingInfo();
+            
+            if(savedMappingInfo != null) {
+                mappingInfo = savedMappingInfo;
+            }
         } catch (Exception ex) {
             Logger.getLogger(SchemaDataServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -84,9 +85,13 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
                     ArrayList<String> fieldInfo = fieldsMap.get(schemaName);
                     Collections.sort(fieldInfo);
                     
-                    ArrayList<SchemaDataField> schemaDataFields = getSchemaDataFields(fieldInfo);
+                    ArrayList<SchemaDataField> schemaDataFields = getSchemaDataFields(schemaName, fieldInfo);
                     SchemaData schemaData = new SchemaData(schemaName, schemaDataFields);
                     schemaData.setType(SchemaData.AT_TYPE);
+                    
+                    // get any stored note
+                    schemaData.setNote(mappingInfo.get(schemaName + "->NOTE"));
+                    
                     schemaDataMapAT.add(schemaData);
                 }
                 
@@ -154,7 +159,7 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
                     ArrayList<String> fieldInfo = fieldsMap.get(schemaName);
                     Collections.sort(fieldInfo);
                     
-                    ArrayList<SchemaDataField> schemaDataFields = getSchemaDataFields(fieldInfo);
+                    ArrayList<SchemaDataField> schemaDataFields = getSchemaDataFields(schemaName, fieldInfo);
                     SchemaData schemaData = new SchemaData(schemaName, schemaDataFields);
                     schemaData.setType(SchemaData.AS_TYPE);
                     schemaDataMapAS.add(schemaData);
@@ -178,7 +183,7 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
      * @param fieldInfo
      * @return 
      */
-    private ArrayList<SchemaDataField> getSchemaDataFields(ArrayList<String> fieldInfo) {
+    private ArrayList<SchemaDataField> getSchemaDataFields(String schemaName, ArrayList<String> fieldInfo) {
         ArrayList<SchemaDataField> schemaDataFields = new ArrayList<SchemaDataField>();
         
         for(String info: fieldInfo) {
@@ -187,10 +192,53 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
             String type = sa[1];
             
             SchemaDataField schemaDataField = new SchemaDataField(name, type);
+            
+            // set the note and mapped to information, if any
+            String note = mappingInfo.get(schemaName + "->" + name + "->NOTE");
+            if (note != null) schemaDataField.setNote(note);
+            
+            String mappedTo = mappingInfo.get(schemaName + "->" + name + "->MAPPED_TO");
+            if (mappedTo != null) schemaDataField.setMappedTo(mappedTo);
+            
             schemaDataFields.add(schemaDataField);
         }
         
         return schemaDataFields;
+    }
+    
+    /**
+     * Method to update information about a schemaData including mapping information
+     * 
+     * @param schemaData
+     * @return 
+     */
+    public synchronized String updateSchemaData(SchemaData schemaData) {
+        if(schemaData.getType().equals(SchemaData.AT_TYPE)) {
+            updateSchemaDataList(schemaData, schemaDataMapAT);
+        } else { // must be Archon list we updating
+            updateSchemaDataList(schemaData, schemaDataMapAR);
+        } 
+        
+        // now store the mapping information for the fields
+        
+        return "Updated -- " + schemaData.getName();
+    }
+    
+    /**
+     * Method to find and replace the stored schemaData with the one from the client
+     * 
+     * @param schemaData
+     * @param schemaDataMapAT 
+     */
+    private void updateSchemaDataList(SchemaData schemaData, ArrayList<SchemaData> schemaDataList) {
+        for(int i = 0; i < schemaDataList.size(); i++) {
+            SchemaData sd = schemaDataList.get(i);
+            
+            if(sd.getId() == schemaData.getId()) {
+                schemaDataList.set(i, schemaData);
+                break;
+            }
+        }
     }
     
     /**
@@ -203,4 +251,6 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
     public String authorize(String username, String password) {
         return "authorized -- " + username;
     }
+
+    
 }

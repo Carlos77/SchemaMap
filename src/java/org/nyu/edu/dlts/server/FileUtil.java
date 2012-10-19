@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import org.nyu.edu.dlts.client.model.SchemaData;
 
 /**
@@ -21,6 +22,8 @@ import org.nyu.edu.dlts.client.model.SchemaData;
  */
 public class FileUtil {
     public static String saveDirectory = "";
+    
+    private static final String FIELD_MAPPING_INFO_FILENAME = "fieldMappingInfo.xml";
 
     /**
      * Method to read a file from a URI and return the text as string
@@ -124,5 +127,44 @@ public class FileUtil {
         }
         
         return filePath;
+    }
+    
+    /**
+     * Method to return the saved mapping information
+     * 
+     * @return 
+     */
+    public static HashMap<String, String> getMappingInfo() {
+        String filePath = saveDirectory + File.separator + FIELD_MAPPING_INFO_FILENAME;
+        
+        try {
+            String xmlContent = readFileContent(filePath);
+        
+            // convert object from xml then return the object
+            XStream xstream = new XStream();
+        
+            HashMap<String, String> mappingInfo = (HashMap<String, String>)xstream.fromXML(xmlContent);
+        
+            return mappingInfo;
+        } catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    /**
+     * Method to save the mapping info object to an xml file
+     * 
+     * @param mappingInfo 
+     */
+    public static void saveMappingInfo(HashMap<String, String> mappingInfo) throws Exception {
+        String filePath = saveDirectory + File.separator + FIELD_MAPPING_INFO_FILENAME;
+        
+        // convert object to xml then save to file
+        XStream xstream = new XStream();
+        
+        String xmlContent = xstream.toXML(mappingInfo);
+        
+        writeFileContent(filePath, xmlContent);
     }
 }

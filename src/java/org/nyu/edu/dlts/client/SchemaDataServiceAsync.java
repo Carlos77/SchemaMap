@@ -15,13 +15,13 @@ import org.nyu.edu.dlts.client.model.SchemaData;
  */
 public interface SchemaDataServiceAsync {
 
-    public void myMethod(String s, AsyncCallback<String> callback);
-    
     public void getSchemaDataAT(AsyncCallback<ArrayList<SchemaData>> callback);
     
     public void getSchemaDataAR(AsyncCallback<ArrayList<SchemaData>> callback);
     
     public void getSchemaDataAS(AsyncCallback<ArrayList<SchemaData>> callback);
+    
+    public void updateSchemaData(SchemaData schemaData, AsyncCallback<String> callback);
 
-    public void authorize(String username, String password, AsyncCallback<String> asyncCallback);
+    public void authorize(String username, String password, AsyncCallback<String> callback);
 }

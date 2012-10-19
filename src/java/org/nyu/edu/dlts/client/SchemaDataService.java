@@ -16,14 +16,14 @@ import org.nyu.edu.dlts.client.model.SchemaData;
  */
 @RemoteServiceRelativePath("schemadataservice")
 public interface SchemaDataService extends RemoteService {
-
-    public String myMethod(String s);
     
     public ArrayList<SchemaData> getSchemaDataAT();
     
     public ArrayList<SchemaData> getSchemaDataAR();
     
     public ArrayList<SchemaData> getSchemaDataAS();
+    
+    public String updateSchemaData(SchemaData schemaData);
     
     public String authorize(String username, String password);
 }

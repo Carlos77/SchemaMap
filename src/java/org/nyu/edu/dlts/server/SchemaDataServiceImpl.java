@@ -22,11 +22,14 @@ import org.nyu.edu.dlts.client.model.SchemaDataField;
  */
 public class SchemaDataServiceImpl extends RemoteServiceServlet implements SchemaDataService {
     // Array List for storing field information
-    private ArrayList<SchemaData> schemaDataMapAT = null;
+    private ArrayList<SchemaData> schemaDataListAT = null;
     
-    private ArrayList<SchemaData> schemaDataMapAR = null;
+    private ArrayList<SchemaData> schemaDataListAR = null;
     
-    private ArrayList<SchemaData> schemaDataMapAS = null;
+    private ArrayList<SchemaData> schemaDataListAS = null;
+    
+    // the base location for the schema code 
+    private String schemaCodeBaseUrl = "";
     
     // Hashmap for storing the mapping information for the fields 
     private HashMap<String, String> mappingInfo = new HashMap<String, String>();
@@ -43,13 +46,15 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
             String saveDirectory = context.getRealPath("/schemas");
             FileUtil.saveDirectory = saveDirectory;
             
-            String indexPath = context.getRealPath("/schemas/AT/index.txt");
+            String versionDirectory = context.getRealPath("/schemas/versions");
+            FileUtil.versionDirectory = versionDirectory;
             
             // set the index uri for AT
+            String indexPath = context.getRealPath("/schemas/AT/index.txt");
             ATSchemaUtils.setIndexPath(indexPath);
             
             // set the index url for Archon
-            indexPath = "http://hudmol.github.com/archivesspace/doc/index.txt";
+            indexPath = "http://localhost/~nathan/fixme.txt";
             ArchonSchemaUtils.setIndexPath(indexPath);
             
             // set the index uri and url for ASpace docs
@@ -57,11 +62,20 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
             String docURL = "http://hudmol.github.com/archivesspace/doc";
             ASpaceSchemaUtils.setIndexPath(indexPath, docURL);
             
-            // load the stored mapping information
-            HashMap<String, String> savedMappingInfo = FileUtil.getMappingInfo();
+            // set the url root for ASpace schema code
+            schemaCodeBaseUrl = "http://hudmol.github.com/archivesspace/doc";
             
-            if(savedMappingInfo != null) {
-                mappingInfo = savedMappingInfo;
+            // load the stored AT and Archon schema data which has edited notes
+            ArrayList<SchemaData> savedSchemaDataList = FileUtil.getSchemaDataList(SchemaData.AT_TYPE);
+            
+            if(savedSchemaDataList != null) {
+                schemaDataListAT = savedSchemaDataList;
+            }
+            
+            savedSchemaDataList = FileUtil.getSchemaDataList(SchemaData.AR_TYPE);
+            
+            if(savedSchemaDataList != null) {
+                schemaDataListAR = savedSchemaDataList;
             }
         } catch (Exception ex) {
             Logger.getLogger(SchemaDataServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
@@ -75,8 +89,8 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
      */
     public ArrayList<SchemaData> getSchemaDataAT() {
         try {
-            if(schemaDataMapAT == null) {
-                schemaDataMapAT = new ArrayList<SchemaData>();
+            if(schemaDataListAT == null) {
+                schemaDataListAT = new ArrayList<SchemaData>();
                 
                 HashMap<String, ArrayList<String>> fieldsMap = ATSchemaUtils.processSchemaIndex();
                 
@@ -89,17 +103,14 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
                     SchemaData schemaData = new SchemaData(schemaName, schemaDataFields);
                     schemaData.setType(SchemaData.AT_TYPE);
                     
-                    // get any stored note
-                    schemaData.setNote(mappingInfo.get(schemaName + "->NOTE"));
-                    
-                    schemaDataMapAT.add(schemaData);
+                    schemaDataListAT.add(schemaData);
                 }
                 
                 // save the list now
-                FileUtil.saveSchemaDataList(schemaDataMapAT);
+                FileUtil.saveSchemaDataList(schemaDataListAT);
             }
             
-            return schemaDataMapAT;
+            return schemaDataListAT;
         } catch (Exception ex) {
             Logger.getLogger(SchemaDataServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             
@@ -115,10 +126,10 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
     public ArrayList<SchemaData> getSchemaDataAR() {
         try {
             // debug code to force ARChone schema data to reload always
-            schemaDataMapAR = null;
+            schemaDataListAR = null;
             
-            /*if(schemaDataMapAR == null) {
-                schemaDataMapAR = new ArrayList<SchemaData>();
+            /*if(schemaDataListAR == null) {
+                schemaDataListAR = new ArrayList<SchemaData>();
                 
                 HashMap<String, ArrayList<String>> fieldsMap = ArchonSchemaUtils.processSchemaIndex();
                 
@@ -130,11 +141,11 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
                     ArrayList<SchemaDataField> schemaDataFields = getSchemaDataFields(fieldInfo);
                     SchemaData schemaData = new SchemaData(schemaName, schemaDataFields);
                     schemaData.setType(SchemaData.AR_TYPE);
-                    schemaDataMapAR.add(schemaData);
+                    schemaDataListAR.add(schemaData);
                 }
             }*/
             
-            return schemaDataMapAR;
+            return schemaDataListAR;
         } catch (Exception ex) {
             Logger.getLogger(SchemaDataServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             
@@ -149,8 +160,8 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
      */
     public ArrayList<SchemaData> getSchemaDataAS() {
         try {
-            if(schemaDataMapAS == null) {
-                schemaDataMapAS = new ArrayList<SchemaData>();
+            if(schemaDataListAS == null) {
+                schemaDataListAS = new ArrayList<SchemaData>();
                 
                 HashMap<String, ArrayList<String>> fieldsMap = ASpaceSchemaUtils.processSchemaIndex();
                 
@@ -162,14 +173,19 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
                     ArrayList<SchemaDataField> schemaDataFields = getSchemaDataFields(schemaName, fieldInfo);
                     SchemaData schemaData = new SchemaData(schemaName, schemaDataFields);
                     schemaData.setType(SchemaData.AS_TYPE);
-                    schemaDataMapAS.add(schemaData);
+                    
+                    // set the url for the schema code
+                    String url = schemaCodeBaseUrl + "/" + schemaName + "_schema.html";
+                    schemaData.setUrl(url);
+                    
+                    schemaDataListAS.add(schemaData);
                 }
                 
                 // save the list now
-                FileUtil.saveSchemaDataList(schemaDataMapAS);
+                FileUtil.saveSchemaDataList(schemaDataListAS);
             }
             
-            return schemaDataMapAS;
+            return schemaDataListAS;
         } catch (Exception ex) {
             Logger.getLogger(SchemaDataServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             
@@ -213,24 +229,27 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
      * @return 
      */
     public synchronized String updateSchemaData(SchemaData schemaData) {
-        if(schemaData.getType().equals(SchemaData.AT_TYPE)) {
-            updateSchemaDataList(schemaData, schemaDataMapAT);
-        } else { // must be Archon list we updating
-            updateSchemaDataList(schemaData, schemaDataMapAR);
-        } 
+        try {
+            if(schemaData.getType().equals(SchemaData.AT_TYPE)) {
+                updateSchemaDataList(schemaData, schemaDataListAT);
+            } else { // must be Archon list we updating
+                updateSchemaDataList(schemaData, schemaDataListAR);
+            }
         
-        // now store the mapping information for the fields
-        
-        return "Updated -- " + schemaData.getName();
+            return "Updated -- " + schemaData.getName();
+        } catch(Exception ex) {
+            Logger.getLogger(SchemaDataServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            return "Failed Update -- " + schemaData.getName();
+        }
     }
     
     /**
      * Method to find and replace the stored schemaData with the one from the client
      * 
      * @param schemaData
-     * @param schemaDataMapAT 
+     * @param schemaDataListAT 
      */
-    private void updateSchemaDataList(SchemaData schemaData, ArrayList<SchemaData> schemaDataList) {
+    private void updateSchemaDataList(SchemaData schemaData, ArrayList<SchemaData> schemaDataList) throws Exception {
         for(int i = 0; i < schemaDataList.size(); i++) {
             SchemaData sd = schemaDataList.get(i);
             
@@ -239,6 +258,9 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
                 break;
             }
         }
+        
+        // now save the schema data to an xml file
+        FileUtil.saveSchemaDataList(schemaDataList);
     }
     
     /**

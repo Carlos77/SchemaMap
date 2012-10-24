@@ -5,6 +5,9 @@
 package org.nyu.edu.dlts.client.widgets;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
@@ -16,6 +19,8 @@ import com.sencha.gxt.data.shared.SortDir;
 import com.sencha.gxt.data.shared.Store.StoreSortInfo;
 import com.sencha.gxt.widget.core.client.ContentPanel;
 import com.sencha.gxt.widget.core.client.FramedPanel;
+//import com.sencha.gxt.widget.core.client.Window;
+import com.sencha.gxt.widget.core.client.box.AlertMessageBox;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer.VerticalLayoutData;
@@ -33,6 +38,7 @@ import com.sencha.gxt.widget.core.client.info.Info;
 import java.util.ArrayList;
 import java.util.List;
 import org.nyu.edu.dlts.client.MainEntryPoint;
+import org.nyu.edu.dlts.client.SchemaDataServiceAsync;
 import org.nyu.edu.dlts.client.model.SchemaData;
 import org.nyu.edu.dlts.client.model.SchemaDataField;
 import org.nyu.edu.dlts.client.model.SchemaDataFieldProperties;
@@ -47,11 +53,8 @@ public class SchemaDataInfoPanel implements IsWidget {
     private SchemaDataFieldProperties props = GWT.create(SchemaDataFieldProperties.class);
     private SchemaData schemaData;
     private ArrayList<SchemaData> aspaceSchemaDataList;
-    
     private Grid<SchemaDataField> grid;
-    
     private TextField mapToTextField;
-    
     private TextField noteTextField;
 
     /**
@@ -107,12 +110,26 @@ public class SchemaDataInfoPanel implements IsWidget {
         fp.addStyleName("margin-10");
         fp.setWidget(grid);
 
+        // if data type is ASPace add buttons for going to schema site
+        if (schemaData.getType().equals(SchemaData.AS_TYPE)) {
+            // add the button to update it now
+            TextButton viewSchemaButton = new TextButton("View Schema Code", new SelectHandler() {
+
+                public void onSelect(SelectEvent event) {
+                    displaySchemaCode();
+                }
+            });
+
+            fp.addButton(viewSchemaButton);
+        }
+
+
         // add the grid to the container
         container.add(fp, new VerticalLayoutData(-1, -1, new Margins(4)));
 
         // TO-DO if the person is logged in then display this
-        if (MainEntryPoint.loggedIn && (schemaData.getType().equals(SchemaData.AT_TYPE) || 
-                schemaData.getType().equals(SchemaData.AR_TYPE))) {
+        if (MainEntryPoint.loggedIn && (schemaData.getType().equals(SchemaData.AT_TYPE)
+                || schemaData.getType().equals(SchemaData.AR_TYPE))) {
             container.add(getEditPanel(grid), new VerticalLayoutData(-1, -1, new Margins(4)));
         }
 
@@ -137,7 +154,7 @@ public class SchemaDataInfoPanel implements IsWidget {
         SchemaDataProperties props = GWT.create(SchemaDataProperties.class);
         ListStore<SchemaData> store = new ListStore<SchemaData>(props.id());
         store.addSortInfo(new StoreSortInfo<SchemaData>(props.name(), SortDir.ASC));
-        
+
         store.addAll(aspaceSchemaDataList);
 
         final ComboBox<SchemaData> combo = new ComboBox<SchemaData>(store, props.nameLabel());
@@ -166,9 +183,9 @@ public class SchemaDataInfoPanel implements IsWidget {
                 }
             }
         });
-        
+
         fp.addButton(viewFieldButton);
-        
+
         // add the button to update it now
         TextButton copyFieldButton = new TextButton("Copy AT Schema Fields", new SelectHandler() {
 
@@ -178,7 +195,7 @@ public class SchemaDataInfoPanel implements IsWidget {
         });
 
         fp.addButton(copyFieldButton);
-        
+
         // add the button to update it now
         TextButton importFieldButton = new TextButton("Import Fields Mapping", new SelectHandler() {
 
@@ -205,7 +222,7 @@ public class SchemaDataInfoPanel implements IsWidget {
                     }
 
                     field.setMappedTo(schemaName + " -> " + fieldName);
-                    
+
                     field.setNote(noteTextField.getCurrentValue());
 
                     grid.getView().refresh(true);
@@ -219,7 +236,12 @@ public class SchemaDataInfoPanel implements IsWidget {
         updateButton.addSelectHandler(sh);
         fp.addButton(updateButton);
 
-        fp.addButton(new TextButton("Submit"));
+        fp.addButton(new TextButton("Submit", new SelectHandler() {
+
+            public void onSelect(SelectEvent event) {
+                saveUpdates();
+            }
+        }));
 
         return fp;
     }
@@ -231,7 +253,7 @@ public class SchemaDataInfoPanel implements IsWidget {
         SchemaFieldsWindow window = new SchemaFieldsWindow(this, sdata);
         window.show();
     }
-    
+
     /**
      * Method to display a window that allows copying the schema fields and information
      * in a text window
@@ -239,16 +261,16 @@ public class SchemaDataInfoPanel implements IsWidget {
      * @param sdata 
      */
     private void displayCopySchemaFieldsWindow() {
-        SchemaFieldsCopyWindow window = new SchemaFieldsCopyWindow(this, 
+        SchemaFieldsCopyWindow window = new SchemaFieldsCopyWindow(this,
                 SchemaFieldsCopyWindow.COPY_VIEW, schemaData);
         window.show();
     }
-    
+
     /**
      * Method to display import the schema fields window, which allows quick import of data
      */
     private void displayImportSchemaFieldsWindow() {
-        SchemaFieldsCopyWindow window = new SchemaFieldsCopyWindow(this, 
+        SchemaFieldsCopyWindow window = new SchemaFieldsCopyWindow(this,
                 SchemaFieldsCopyWindow.IMPORT_VIEW, schemaData);
         window.show();
     }
@@ -262,13 +284,53 @@ public class SchemaDataInfoPanel implements IsWidget {
         mapToTextField.setValue(fieldName);
 
         SchemaDataField field = grid.getSelectionModel().getSelectedItem();
-        
+
         if (field != null) {
             field.setMappedTo(schemaName + " -> " + fieldName);
-            
+
             field.setNote(noteTextField.getCurrentValue());
-            
+
             grid.getView().refresh(true);
         }
+    }
+
+    // Method that display a page for the digitized item when double clicked
+    protected void displaySchemaCode() {
+        /*Window window = new Window();
+        window.setSize("800", "600");
+        window.setModal(false);
+        window.setHeadingText("Schema Data Code -- " + schemaData.getName());
+        window.setBodyBorder(false);
+
+        Frame content = new Frame(schemaData.getUrl());
+
+        window.add(content);
+        window.show();*/
+        
+        Window.open(schemaData.getUrl(), "_blank", "");
+    }
+
+    /**
+     * Method to save the updates on the backend database
+     */
+    private void saveUpdates() {
+        SchemaDataServiceAsync service = MainEntryPoint.getService();
+
+        // Create an asynchronous callback to handle the result.
+        AsyncCallback<String> callback = new AsyncCallback<String>() {
+
+            public void onSuccess(String message) {
+                Info.display("Submit Meesage", message);
+            }
+
+            public void onFailure(Throwable caught) {
+                AlertMessageBox alertMessageBox = new AlertMessageBox("Error Saving Data",
+                        "Meesage: " + caught.toString());
+                alertMessageBox.show();
+                System.out.println("Unable to update schema data");
+            }
+        };
+
+        service.updateSchemaData(schemaData, callback);
     }
 }

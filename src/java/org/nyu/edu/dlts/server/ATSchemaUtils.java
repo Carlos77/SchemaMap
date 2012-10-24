@@ -203,9 +203,9 @@ public class ATSchemaUtils {
         ATSchemaUtils schemaUtils = new ATSchemaUtils();
 
         try {
-            ArrayList<SchemaData> schemaDataMapAT = FileUtil.getSchemaDataList(SchemaData.AT_TYPE);
+            //ArrayList<SchemaData> schemaDataMapAT = FileUtil.getSchemaDataList(SchemaData.AT_TYPE);
             
-            schemaDataMapAT = new ArrayList<SchemaData>();
+            ArrayList<SchemaData> schemaDataMapAT = new ArrayList<SchemaData>();
             HashMap<String, ArrayList<String>> fieldsMap = schemaUtils.processSchemaIndex();
 
             // process all the the entries

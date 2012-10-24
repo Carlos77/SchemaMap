@@ -21,7 +21,7 @@ public class SchemaData implements Serializable {
     private ArrayList<SchemaDataField> fields;
     private String note;
     private String type; // used to set either ASpace or AT
-    
+    private String url; // URL for schema object. Used by ASpace
     private static int COUNTER = 0;
 
     // default constructor
@@ -83,5 +83,13 @@ public class SchemaData implements Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+    
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

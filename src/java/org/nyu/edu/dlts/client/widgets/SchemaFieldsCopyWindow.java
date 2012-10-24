@@ -74,6 +74,8 @@ public class SchemaFieldsCopyWindow extends Window {
         // if we are in copy view then display the current text
         if(view.equals(COPY_VIEW)) {
             textArea.setValue(getFieldsAsText());
+        } else {
+            textArea.setValue("Paste {Tab} delimited data here");
         }
         
         container.add(textArea);

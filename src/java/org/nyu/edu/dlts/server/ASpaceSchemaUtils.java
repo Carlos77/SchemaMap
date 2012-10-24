@@ -120,6 +120,7 @@ public class ASpaceSchemaUtils {
                 
                 String propertyName = sa[1];
                 String propertyType = sa[0];
+                
                 if(!propertyName.equals("uri")) {
                     String propertyInfo = propertyName + ", " + propertyType.toUpperCase();
                     fieldsList.add(propertyInfo);
@@ -155,10 +156,13 @@ public class ASpaceSchemaUtils {
      * @param args 
      */
     public static void main(String[] args) {
-        ASpaceSchemaUtils schemaUtils = new ASpaceSchemaUtils();
+        // set the index uri and url for ASpace docs
+        String path = "/Users/nathan/NetBeansProjects/SchemaMap/web/schemas/AS/index.txt";
+        String docURL = "http://hudmol.github.com/archivesspace/doc";
+        ASpaceSchemaUtils.setIndexPath(path, docURL);
         
         try {
-            schemaUtils.processSchemaIndex();
+            ASpaceSchemaUtils.processSchemaIndex();
         } catch (Exception ex) {
             Logger.getLogger(ASpaceSchemaUtils.class.getName()).log(Level.SEVERE, null, ex);
         }

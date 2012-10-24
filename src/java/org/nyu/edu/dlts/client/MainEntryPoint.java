@@ -30,6 +30,7 @@ import com.sencha.gxt.widget.core.client.container.HBoxLayoutContainer.HBoxLayou
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer.VerticalLayoutData;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
+import com.sencha.gxt.widget.core.client.info.Info;
 import com.sencha.gxt.widget.core.client.selection.SelectionChangedEvent;
 import com.sencha.gxt.widget.core.client.selection.SelectionChangedEvent.SelectionChangedHandler;
 import java.util.ArrayList;
@@ -137,13 +138,23 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
 
         BoxLayoutData flex = new BoxLayoutData(new Margins(0, 5, 0, 0));
         flex.setFlex(1);
-        HTML html = new HTML("<b>Archive Space -- Archivists Toolkit -- Archon Data Field Mapper</b> v0.3");
+        HTML html = new HTML("<b>Archives Space Schema Mapper</b> v0.3");
         container.add(html, flex);
         
         // add the html that hold the login information
         loginHtml = new HTML("");
         container.add(loginHtml, flex);
-
+        
+        // the button to view mapping documentation
+        TextButton viewButton = new TextButton("View Mapping Documents");
+        viewButton.addSelectHandler(new SelectHandler() {
+            public void onSelect(SelectEvent event) {
+                Info.display("Not implemented", "Functionality not yet implemented ...");
+            }
+        });
+        
+        container.add(viewButton, new BoxLayoutData(new Margins(0, 5, 0, 0)));
+        
         // the login buton
         loginButton = new TextButton("Login");
         loginButton.addSelectHandler(new SelectHandler() {
@@ -165,7 +176,6 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
                 Window.Location.reload();
             }
         });
-        
 
         northPanel.add(container);
     }

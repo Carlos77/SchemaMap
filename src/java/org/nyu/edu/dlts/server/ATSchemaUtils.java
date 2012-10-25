@@ -196,7 +196,9 @@ public class ATSchemaUtils {
     public static void main(String[] args) {
         String ip = "/Users/nathan/NetBeansProjects/SchemaMap/web/schemas/AT/index.txt";
         String sd = "/Users/nathan/NetBeansProjects/SchemaMap/web/schemas";
+        
         FileUtil.saveDirectory = sd;
+        FileUtil.versionDirectory = sd + "/versions";
 
         ATSchemaUtils.setIndexPath(ip);
 

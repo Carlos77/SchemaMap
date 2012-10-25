@@ -34,6 +34,9 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
     // Hashmap for storing the mapping information for the fields 
     private HashMap<String, String> mappingInfo = new HashMap<String, String>();
     
+    // Holds user login information
+    private HashMap<String, String> userInfo = new HashMap<String, String>();
+    
     /**
      * Setup the url for accessing the schema list
      */
@@ -43,6 +46,12 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
         ServletContext context = getServletConfig().getServletContext();
         
         try {
+            // open the database connection and load the user
+            DatabaseUtil.setupTestDatabaseInfo();
+            DatabaseUtil.getConnection();
+            
+            userInfo = DatabaseUtil.getUserLoginInfo();
+            
             String saveDirectory = context.getRealPath("/schemas");
             FileUtil.saveDirectory = saveDirectory;
             
@@ -66,13 +75,15 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
             schemaCodeBaseUrl = "http://hudmol.github.com/archivesspace/doc";
             
             // load the stored AT and Archon schema data which has edited notes
-            ArrayList<SchemaData> savedSchemaDataList = FileUtil.getSchemaDataList(SchemaData.AT_TYPE);
+            //ArrayList<SchemaData> savedSchemaDataList = FileUtil.getSchemaDataList(SchemaData.AT_TYPE);
+            ArrayList<SchemaData> savedSchemaDataList = DatabaseUtil.getSchemaDataList(SchemaData.AT_TYPE);
             
             if(savedSchemaDataList != null) {
                 schemaDataListAT = savedSchemaDataList;
             }
             
-            savedSchemaDataList = FileUtil.getSchemaDataList(SchemaData.AR_TYPE);
+            //savedSchemaDataList = FileUtil.getSchemaDataList(SchemaData.AR_TYPE);
+            savedSchemaDataList = DatabaseUtil.getSchemaDataList(SchemaData.AR_TYPE);
             
             if(savedSchemaDataList != null) {
                 schemaDataListAR = savedSchemaDataList;
@@ -271,7 +282,15 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
      * @return 
      */
     public String authorize(String username, String password) {
-        return "authorized -- " + username;
+        String message = "Login failed ...";
+        
+        if(userInfo.containsKey(username)) {
+            if(password.equals(userInfo.get(username))) {
+                message = "authorized -- " + username;
+            }
+        }
+        
+        return message;
     }
 
     

@@ -105,7 +105,6 @@ public class ATSchemaUtils {
 
             System.out.println("Class Name is: " + className);
 
-
             // array list to hold the field informaion
             ArrayList<String> fieldsList = new ArrayList<String>();
 

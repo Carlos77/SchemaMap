@@ -7,19 +7,16 @@ package org.nyu.edu.dlts.client.widgets;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
 import com.sencha.gxt.core.client.IdentityValueProvider;
-import com.sencha.gxt.core.client.Style.SelectionMode;
 import com.sencha.gxt.core.client.util.Margins;
 import com.sencha.gxt.data.shared.ListStore;
 import com.sencha.gxt.data.shared.SortDir;
 import com.sencha.gxt.data.shared.Store.StoreSortInfo;
 import com.sencha.gxt.widget.core.client.ContentPanel;
 import com.sencha.gxt.widget.core.client.FramedPanel;
-//import com.sencha.gxt.widget.core.client.Window;
 import com.sencha.gxt.widget.core.client.box.AlertMessageBox;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
@@ -49,7 +46,8 @@ import org.nyu.edu.dlts.client.model.SchemaDataProperties;
  * @author nathan
  */
 public class SchemaDataInfoPanel implements IsWidget {
-
+    private final String REST_API_URL = "http://hudmol.github.com/archivesspace/doc/file.API.html";
+    
     private SchemaDataFieldProperties props = GWT.create(SchemaDataFieldProperties.class);
     private SchemaData schemaData;
     private ArrayList<SchemaData> aspaceSchemaDataList;
@@ -112,7 +110,7 @@ public class SchemaDataInfoPanel implements IsWidget {
 
         // if data type is ASPace add buttons for going to schema site
         if (schemaData.getType().equals(SchemaData.AS_TYPE)) {
-            // add the button to update it now
+            // add the button to view the ASpace schema code
             TextButton viewSchemaButton = new TextButton("View Schema Code", new SelectHandler() {
 
                 public void onSelect(SelectEvent event) {
@@ -121,6 +119,16 @@ public class SchemaDataInfoPanel implements IsWidget {
             });
 
             fp.addButton(viewSchemaButton);
+            
+            // add button to view the API documents
+            TextButton viewAPIButton = new TextButton("View REST API", new SelectHandler() {
+
+                public void onSelect(SelectEvent event) {
+                    displayRestAPI();
+                }
+            });
+
+            fp.addButton(viewAPIButton);
         }
 
 
@@ -187,7 +195,7 @@ public class SchemaDataInfoPanel implements IsWidget {
         fp.addButton(viewFieldButton);
 
         // add the button to update it now
-        TextButton copyFieldButton = new TextButton("Copy AT Schema Fields", new SelectHandler() {
+        TextButton copyFieldButton = new TextButton("Copy Fields Mapping", new SelectHandler() {
 
             public void onSelect(SelectEvent event) {
                 displayCopySchemaFieldsWindow();
@@ -294,7 +302,16 @@ public class SchemaDataInfoPanel implements IsWidget {
         }
     }
 
-    // Method that display a page for the digitized item when double clicked
+    /**
+     * Method to display the RESP APIs
+     */
+    protected void displayRestAPI() {
+        Window.open(REST_API_URL, "_blank", "");
+    }
+    
+    /**
+     * Method that display a page for the digitized item when button is pressed
+     */
     protected void displaySchemaCode() {
         /*Window window = new Window();
         window.setSize("800", "600");

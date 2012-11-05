@@ -157,7 +157,8 @@ public class ASpaceSchemaUtils {
      */
     public static void main(String[] args) {
         // set the index uri and url for ASpace docs
-        String path = "/Users/nathan/NetBeansProjects/SchemaMap/web/schemas/AS/index.txt";
+        //String path = "/Users/nathan/NetBeansProjects/SchemaMap/web/schemas/AS/index.txt";
+        String path = "C:/Users/nathan/Documents/NetBeansProjects/SchemaMap/web/schemas/AS/index.txt";
         String docURL = "http://hudmol.github.com/archivesspace/doc";
         ASpaceSchemaUtils.setIndexPath(path, docURL);
         

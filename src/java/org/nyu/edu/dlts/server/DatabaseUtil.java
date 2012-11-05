@@ -165,8 +165,8 @@ public class DatabaseUtil {
         DatabaseUtil.database = "SchemaMap";
         DatabaseUtil.server = "localhost";
         DatabaseUtil.port = "3306";
-        DatabaseUtil.username = "---";
-        DatabaseUtil.password = "---";
+        DatabaseUtil.username = "----";
+        DatabaseUtil.password = "----";
     }
 
     /**

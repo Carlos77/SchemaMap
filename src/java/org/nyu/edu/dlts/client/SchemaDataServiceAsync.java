@@ -21,7 +21,7 @@ public interface SchemaDataServiceAsync {
     
     public void getSchemaDataAS(AsyncCallback<ArrayList<SchemaData>> callback);
     
-    public void updateSchemaData(SchemaData schemaData, AsyncCallback<String> callback);
+    public void updateSchemaData(String username, SchemaData schemaData, AsyncCallback<String> callback);
 
     public void authorize(String username, String password, AsyncCallback<String> callback);
 }

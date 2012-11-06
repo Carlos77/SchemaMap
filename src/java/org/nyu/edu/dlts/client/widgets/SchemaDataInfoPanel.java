@@ -348,6 +348,6 @@ public class SchemaDataInfoPanel implements IsWidget {
             }
         };
 
-        service.updateSchemaData(schemaData, callback);
+        service.updateSchemaData(MainEntryPoint.username, schemaData, callback);
     }
 }

@@ -62,6 +62,7 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
     
     // used to specify if user is logged on
     public static boolean loggedIn = false;
+    public static String username = "";
 
     // define a renderieir class to show the fields
     public interface SchemaRenderer extends XTemplates {
@@ -348,6 +349,7 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
      */
     public void setLoggedIn(boolean loggedIn, String message) {
         this.loggedIn = loggedIn;
+        this.username = message;
         
         if(loggedIn) {
             loginButton.setEnabled(false);
@@ -380,7 +382,8 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
         // check cookie if we are loged on
         String authorized = Cookies.getCookie("authorized");
         if(authorized != null && authorized.contains("yes")) {
-            setLoggedIn(true, authorized.replace("yes --", ""));
+            username = authorized.replace("yes --", "");
+            setLoggedIn(true, username);
         }
     }
 

@@ -23,7 +23,7 @@ public interface SchemaDataService extends RemoteService {
     
     public ArrayList<SchemaData> getSchemaDataAS();
     
-    public String updateSchemaData(SchemaData schemaData);
+    public String updateSchemaData(String username, SchemaData schemaData);
     
     public String authorize(String username, String password);
 }

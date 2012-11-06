@@ -239,12 +239,12 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
      * @param schemaData
      * @return 
      */
-    public synchronized String updateSchemaData(SchemaData schemaData) {
+    public synchronized String updateSchemaData(String userId, SchemaData schemaData) {
         try {
             if(schemaData.getType().equals(SchemaData.AT_TYPE)) {
-                updateSchemaDataList(schemaData, schemaDataListAT);
+                updateSchemaDataList(userId, schemaData, schemaDataListAT);
             } else { // must be Archon list we updating
-                updateSchemaDataList(schemaData, schemaDataListAR);
+                updateSchemaDataList(userId, schemaData, schemaDataListAR);
             }
         
             return "Updated -- " + schemaData.getName();
@@ -260,7 +260,7 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
      * @param schemaData
      * @param schemaDataListAT 
      */
-    private void updateSchemaDataList(SchemaData schemaData, ArrayList<SchemaData> schemaDataList) throws Exception {
+    private void updateSchemaDataList(String username, SchemaData schemaData, ArrayList<SchemaData> schemaDataList) throws Exception {
         for(int i = 0; i < schemaDataList.size(); i++) {
             SchemaData sd = schemaDataList.get(i);
             
@@ -271,7 +271,8 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
         }
         
         // now save the schema data to an xml file
-        FileUtil.saveSchemaDataList(schemaDataList);
+        //FileUtil.saveSchemaDataList(schemaDataList);
+        DatabaseUtil.saveSchemaDataList(username, schemaDataList);
     }
     
     /**

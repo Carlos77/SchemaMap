@@ -293,6 +293,4 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
         
         return message;
     }
-
-    
 }

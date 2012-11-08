@@ -5,6 +5,8 @@
 package org.nyu.edu.dlts.client.widgets;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -46,8 +48,8 @@ import org.nyu.edu.dlts.client.model.SchemaDataProperties;
  * @author nathan
  */
 public class SchemaDataInfoPanel implements IsWidget {
+
     private final String REST_API_URL = "http://hudmol.github.com/archivesspace/doc/file.API.html";
-    
     private SchemaDataFieldProperties props = GWT.create(SchemaDataFieldProperties.class);
     private SchemaData schemaData;
     private ArrayList<SchemaData> aspaceSchemaDataList;
@@ -57,8 +59,8 @@ public class SchemaDataInfoPanel implements IsWidget {
 
     /**
      * Main constructor
-     * 
-     * @param schemaData 
+     *
+     * @param schemaData
      */
     public SchemaDataInfoPanel(ArrayList<SchemaData> aspaceSchemaDataList, SchemaData schemaData) {
         this.aspaceSchemaDataList = aspaceSchemaDataList;
@@ -67,7 +69,8 @@ public class SchemaDataInfoPanel implements IsWidget {
 
     /**
      * Method that is called automatically
-     * @return 
+     *
+     * @return
      */
     public Widget asWidget() {
         VerticalLayoutContainer container = new VerticalLayoutContainer();
@@ -100,6 +103,17 @@ public class SchemaDataInfoPanel implements IsWidget {
         grid.getView().setStripeRows(true);
         grid.getView().setColumnLines(true);
 
+        // add selection handeler to grid to update the correct text fields
+        grid.getSelectionModel().addSelectionHandler(new SelectionHandler<SchemaDataField>() {
+
+            @Override
+            public void onSelection(SelectionEvent<SchemaDataField> event) {
+                SchemaDataField selectedField = event.getSelectedItem();
+                mapToTextField.setValue(selectedField.getMappedTo());
+                noteTextField.setValue(selectedField.getNote());
+            }
+        });
+
         numberer.initPlugin(grid);
 
         FramedPanel fp = new FramedPanel();
@@ -119,7 +133,7 @@ public class SchemaDataInfoPanel implements IsWidget {
             });
 
             fp.addButton(viewSchemaButton);
-            
+
             // add button to view the API documents
             TextButton viewAPIButton = new TextButton("View REST API", new SelectHandler() {
 
@@ -146,8 +160,8 @@ public class SchemaDataInfoPanel implements IsWidget {
 
     /**
      * Return the panel that allows editing mapping information
-     * 
-     * @return 
+     *
+     * @return
      */
     private ContentPanel getEditPanel(final Grid<SchemaDataField> grid) {
         // add the buttons that allow for entering the mapping information
@@ -222,20 +236,30 @@ public class SchemaDataInfoPanel implements IsWidget {
                 SchemaDataField field = grid.getSelectionModel().getSelectedItem();
 
                 if (field != null) {
-                    String schemaName = combo.getValue().getName();
-                    String fieldName = mapToTextField.getCurrentValue();
+                    SchemaData selectedSchema = combo.getValue();
 
-                    if (fieldName == null) {
-                        fieldName = "{see schema}";
+                    // if the combo box is not empty then use info from that to update
+                    if (selectedSchema != null) {
+                        String schemaName = combo.getValue().getName();
+                        String fieldName = mapToTextField.getCurrentValue();
+
+                        if (fieldName == null) {
+                            fieldName = "{see schema}";
+                        }
+
+                        field.setMappedTo(schemaName + " -> " + fieldName);
+                    } else {
+                        field.setMappedTo(mapToTextField.getCurrentValue());
                     }
 
-                    field.setMappedTo(schemaName + " -> " + fieldName);
-
-                    field.setNote(noteTextField.getCurrentValue());
+                    // update the note
+                    String note = noteTextField.getCurrentValue();
+                    field.setNote(note);
 
                     grid.getView().refresh(true);
+                    //grid.getSelectionModel().select(field, false);
 
-                    Info.display("Update", "Updated mapping Information for " + field.getName());
+                    //Info.display("Update", "Updated mapping Information for " + field.getName());
                 }
             }
         };
@@ -263,10 +287,10 @@ public class SchemaDataInfoPanel implements IsWidget {
     }
 
     /**
-     * Method to display a window that allows copying the schema fields and information
-     * in a text window
-     * 
-     * @param sdata 
+     * Method to display a window that allows copying the schema fields and
+     * information in a text window
+     *
+     * @param sdata
      */
     private void displayCopySchemaFieldsWindow() {
         SchemaFieldsCopyWindow window = new SchemaFieldsCopyWindow(this,
@@ -275,7 +299,8 @@ public class SchemaDataInfoPanel implements IsWidget {
     }
 
     /**
-     * Method to display import the schema fields window, which allows quick import of data
+     * Method to display import the schema fields window, which allows quick
+     * import of data
      */
     private void displayImportSchemaFieldsWindow() {
         SchemaFieldsCopyWindow window = new SchemaFieldsCopyWindow(this,
@@ -285,8 +310,8 @@ public class SchemaDataInfoPanel implements IsWidget {
 
     /**
      * Method that called to set the text in the map to text field
-     * 
-     * @param fieldName 
+     *
+     * @param fieldName
      */
     public void updateMapToTextField(String schemaName, String fieldName) {
         mapToTextField.setValue(fieldName);
@@ -308,22 +333,22 @@ public class SchemaDataInfoPanel implements IsWidget {
     protected void displayRestAPI() {
         Window.open(REST_API_URL, "_blank", "");
     }
-    
+
     /**
      * Method that display a page for the digitized item when button is pressed
      */
     protected void displaySchemaCode() {
-        /*Window window = new Window();
-        window.setSize("800", "600");
-        window.setModal(false);
-        window.setHeadingText("Schema Data Code -- " + schemaData.getName());
-        window.setBodyBorder(false);
+        /*
+         * Window window = new Window(); window.setSize("800", "600");
+         * window.setModal(false); window.setHeadingText("Schema Data Code -- "
+         * + schemaData.getName()); window.setBodyBorder(false);
+         *
+         * Frame content = new Frame(schemaData.getUrl());
+         *
+         * window.add(content);
+        window.show();
+         */
 
-        Frame content = new Frame(schemaData.getUrl());
-
-        window.add(content);
-        window.show();*/
-        
         Window.open(schemaData.getUrl(), "_blank", "");
     }
 

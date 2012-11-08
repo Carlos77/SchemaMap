@@ -35,6 +35,7 @@ import com.sencha.gxt.widget.core.client.grid.Grid;
 import com.sencha.gxt.widget.core.client.grid.RowNumberer;
 import com.sencha.gxt.widget.core.client.info.Info;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.nyu.edu.dlts.client.MainEntryPoint;
 import org.nyu.edu.dlts.client.SchemaDataServiceAsync;
@@ -152,7 +153,7 @@ public class SchemaDataInfoPanel implements IsWidget {
         // TO-DO if the person is logged in then display this
         if (MainEntryPoint.loggedIn && (schemaData.getType().equals(SchemaData.AT_TYPE)
                 || schemaData.getType().equals(SchemaData.AR_TYPE))) {
-            container.add(getEditPanel(grid), new VerticalLayoutData(-1, -1, new Margins(4)));
+            container.add(getEditPanel(), new VerticalLayoutData(-1, -1, new Margins(4)));
         }
 
         return container;
@@ -163,7 +164,7 @@ public class SchemaDataInfoPanel implements IsWidget {
      *
      * @return
      */
-    private ContentPanel getEditPanel(final Grid<SchemaDataField> grid) {
+    private ContentPanel getEditPanel() {
         // add the buttons that allow for entering the mapping information
         FramedPanel fp = new FramedPanel();
         fp.setHeadingText("Edit Mapping and Schema Information");
@@ -190,7 +191,7 @@ public class SchemaDataInfoPanel implements IsWidget {
         noteTextField = new TextField();
         vlc.add(new FieldLabel(noteTextField, "Mapping Note"), new VerticalLayoutData(1, -1));
 
-        TextArea noteTextArea = new TextArea();
+        final TextArea noteTextArea = new TextArea();
         noteTextArea.setValue(schemaData.getNote());
         vlc.add(new FieldLabel(noteTextArea, "Schema Note"), new VerticalLayoutData(1, 100));
 
@@ -237,30 +238,38 @@ public class SchemaDataInfoPanel implements IsWidget {
 
                 if (field != null) {
                     SchemaData selectedSchema = combo.getValue();
-
+                    String fieldName = mapToTextField.getCurrentValue();
+                    
                     // if the combo box is not empty then use info from that to update
                     if (selectedSchema != null) {
                         String schemaName = combo.getValue().getName();
-                        String fieldName = mapToTextField.getCurrentValue();
 
                         if (fieldName == null) {
                             fieldName = "{see schema}";
                         }
 
-                        field.setMappedTo(schemaName + " -> " + fieldName);
+                        // make sure not to duplicate the schema name
+                        if(fieldName.contains(schemaName + " -> ")) {
+                            field.setMappedTo(fieldName);
+                        } else {
+                            field.setMappedTo(schemaName + " -> " + fieldName);
+                        }
                     } else {
-                        field.setMappedTo(mapToTextField.getCurrentValue());
+                        field.setMappedTo(fieldName);
                     }
 
                     // update the note
                     String note = noteTextField.getCurrentValue();
                     field.setNote(note);
-
-                    grid.getView().refresh(true);
-                    //grid.getSelectionModel().select(field, false);
-
-                    //Info.display("Update", "Updated mapping Information for " + field.getName());
+                    
+                    // refresh the grid view now
+                    int index = grid.getStore().indexOf(field);
+                    grid.getView().refresh(false);
+                    grid.getView().focusRow(index);
                 }
+                
+                // always update the schema data note
+                schemaData.setNote(noteTextArea.getValue());
             }
         };
 
@@ -323,8 +332,32 @@ public class SchemaDataInfoPanel implements IsWidget {
 
             field.setNote(noteTextField.getCurrentValue());
 
-            grid.getView().refresh(true);
+            // refresh the grid view now
+            int index = grid.getStore().indexOf(field);
+            grid.getView().refresh(false);
+            grid.getView().focusRow(index);
         }
+    }
+    
+    /**
+     * Method import mapping data
+     * 
+     * @param mappingData 
+     */
+    public void importMappingInfo(HashMap<String,String> mappingData) {
+        // go through each item and import the mapping information
+        for(SchemaDataField field: schemaData.getFields()) {
+            String info = mappingData.get(schemaData.getName() + " -> " + field.getName());
+            
+            if(info != null) {
+                String[] sa = info.split("\\s*\\t\\s*");
+                field.setMappedTo(sa[0]);
+                field.setNote(sa[1]);
+            }
+        }
+        
+        // now update the view
+        grid.getView().refresh(false);
     }
 
     /**

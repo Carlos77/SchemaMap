@@ -4,12 +4,7 @@
 package org.nyu.edu.dlts.client.widgets;
 
 
-import com.google.gwt.core.client.GWT;
 import com.sencha.gxt.core.client.dom.ScrollSupport;
-import com.sencha.gxt.data.shared.ListStore;
-import com.sencha.gxt.data.shared.SortDir;
-import com.sencha.gxt.data.shared.Store.StoreSortInfo;
-import com.sencha.gxt.widget.core.client.ListView;
 import com.sencha.gxt.widget.core.client.Window;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
@@ -18,7 +13,6 @@ import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.TextArea;
 import org.nyu.edu.dlts.client.model.SchemaData;
 import org.nyu.edu.dlts.client.model.SchemaDataField;
-import org.nyu.edu.dlts.client.model.SchemaDataFieldProperties;
 
 /**
  *
@@ -65,11 +59,11 @@ public class SchemaFieldsCopyWindow extends Window {
         
         VerticalLayoutContainer container = new VerticalLayoutContainer();
         container.setScrollMode(ScrollSupport.ScrollMode.AUTOY);
-        
         setWidget(container);
         
         TextArea textArea = new TextArea();
-        textArea.setSize("400", "300");
+        textArea.setSize("500", "400");
+        
         
         // if we are in copy view then display the current text
         if(view.equals(COPY_VIEW)) {
@@ -114,7 +108,7 @@ public class SchemaFieldsCopyWindow extends Window {
         String schemaName = schemaData.getName();
         for(SchemaDataField field: schemaData.getFields()) {
             sb.append(schemaName);
-            sb.append("->");
+            sb.append(" -> ");
             sb.append(field.getName());
             sb.append(" \t ");
             

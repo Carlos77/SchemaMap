@@ -11,6 +11,7 @@ import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.form.TextArea;
+import java.util.HashMap;
 import org.nyu.edu.dlts.client.model.SchemaData;
 import org.nyu.edu.dlts.client.model.SchemaDataField;
 
@@ -61,7 +62,7 @@ public class SchemaFieldsCopyWindow extends Window {
         container.setScrollMode(ScrollSupport.ScrollMode.AUTOY);
         setWidget(container);
         
-        TextArea textArea = new TextArea();
+        final TextArea textArea = new TextArea();
         textArea.setSize("500", "400");
         
         
@@ -77,7 +78,7 @@ public class SchemaFieldsCopyWindow extends Window {
         // add the import data button
         TextButton saveButton = new TextButton("Import Mapping Data", new SelectHandler() {
             public void onSelect(SelectEvent event) {
-                
+                importData(textArea.getValue());
             }
         });
         
@@ -128,5 +129,37 @@ public class SchemaFieldsCopyWindow extends Window {
         }
         
         return sb.toString();
+    }
+    
+    /**
+     * Method to import data 
+     */
+    public void importData(String tabData) {
+        HashMap<String, String> fieldMapping = new HashMap<String, String>();
+        
+        String[] lines = tabData.split("\\n");
+        
+        for(String line: lines) {
+            if(line.contains("->")) {
+                String[] info = line.split("\\s*\\t\\s*");
+                
+                String key = info[0];
+                
+                String mapping = "";
+                if(info[1] != null) {
+                    mapping = info[1];
+                }
+                
+                String note = "";
+                if(info[2] != null) {
+                    note = info[2];
+                }
+                
+                String fieldInfo = mapping + "\\t" + note;
+                fieldMapping.put(key, fieldInfo);
+            }
+        }
+        
+        // now update the schema data object
     }
 }

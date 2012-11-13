@@ -55,6 +55,7 @@ public class SchemaDataInfoPanel implements IsWidget {
     private SchemaData schemaData;
     private ArrayList<SchemaData> aspaceSchemaDataList;
     private Grid<SchemaDataField> grid;
+    private TextButton viewValueButton;
     private TextField mapToTextField;
     private TextField noteTextField;
 
@@ -208,7 +209,17 @@ public class SchemaDataInfoPanel implements IsWidget {
         });
 
         fp.addButton(viewFieldButton);
+        
+        // add the button to update it now
+        viewValueButton = new TextButton("View Field Values", new SelectHandler() {
 
+            public void onSelect(SelectEvent event) {
+                displayFieldValues();
+            }
+        });
+
+        fp.addButton(viewValueButton);
+        
         // add the button to update it now
         TextButton copyFieldButton = new TextButton("Copy Fields Mapping", new SelectHandler() {
 
@@ -293,6 +304,17 @@ public class SchemaDataInfoPanel implements IsWidget {
     private void displaySchemaFieldsWindow(SchemaData sdata) {
         SchemaFieldsWindow window = new SchemaFieldsWindow(this, sdata);
         window.show();
+    }
+    
+    /**
+     * Method to display the values for a particular field in there are any
+     */
+    private void displayFieldValues() {
+        SchemaDataField field = grid.getSelectionModel().getSelectedItem();
+        
+        if(field != null) { 
+            Info.display("Display Field Values", "Test code ... " + field.getName());
+        }
     }
 
     /**

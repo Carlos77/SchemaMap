@@ -63,7 +63,7 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
             ATSchemaUtils.setIndexPath(indexPath);
             
             // set the index url for Archon
-            indexPath = "http://localhost/~nathan/fixme.txt";
+            indexPath = "http://archives.library.illinois.edu/tmp/archon_datamodel/index.txt";
             ArchonSchemaUtils.setIndexPath(indexPath);
             
             // set the index uri and url for ASpace docs
@@ -136,10 +136,10 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
      */
     public ArrayList<SchemaData> getSchemaDataAR() {
         try {
-            // debug code to force ARChone schema data to reload always
+            // 11/12/2012 -- Debug code to force ARChone schema data to reload always
             schemaDataListAR = null;
             
-            /*if(schemaDataListAR == null) {
+            if(schemaDataListAR == null) {
                 schemaDataListAR = new ArrayList<SchemaData>();
                 
                 HashMap<String, ArrayList<String>> fieldsMap = ArchonSchemaUtils.processSchemaIndex();
@@ -149,12 +149,12 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
                     ArrayList<String> fieldInfo = fieldsMap.get(schemaName);
                     Collections.sort(fieldInfo);
                     
-                    ArrayList<SchemaDataField> schemaDataFields = getSchemaDataFields(fieldInfo);
+                    ArrayList<SchemaDataField> schemaDataFields = getSchemaDataFields(schemaName, fieldInfo);
                     SchemaData schemaData = new SchemaData(schemaName, schemaDataFields);
                     schemaData.setType(SchemaData.AR_TYPE);
                     schemaDataListAR.add(schemaData);
                 }
-            }*/
+            }
             
             return schemaDataListAR;
         } catch (Exception ex) {
@@ -220,12 +220,12 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
             
             SchemaDataField schemaDataField = new SchemaDataField(name, type);
             
-            // set the note and mapped to information, if any
+            /* set the note and mapped to information, if any
             String note = mappingInfo.get(schemaName + "->" + name + "->NOTE");
             if (note != null) schemaDataField.setNote(note);
             
             String mappedTo = mappingInfo.get(schemaName + "->" + name + "->MAPPED_TO");
-            if (mappedTo != null) schemaDataField.setMappedTo(mappedTo);
+            if (mappedTo != null) schemaDataField.setMappedTo(mappedTo);*/
             
             schemaDataFields.add(schemaDataField);
         }

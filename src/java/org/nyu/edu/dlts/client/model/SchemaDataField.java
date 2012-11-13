@@ -8,6 +8,7 @@ import java.io.Serializable;
  * @author nathan
  */
 public class SchemaDataField implements Serializable {
+    private static final String TYPE_VALUE = "Initial Value";
     private int id;
     private String name;
     private String type;
@@ -38,6 +39,17 @@ public class SchemaDataField implements Serializable {
         this.type = type;
         //this.note = "Test Note";
         //this.mappedTo = "Test Map";
+    }
+    
+    /**
+     * Constructor when mapping values instead of fields
+     * 
+     * @param name 
+     */
+    public SchemaDataField(String name) {
+        this.id = Integer.valueOf(COUNTER++);
+        this.name = name;
+        this.type = TYPE_VALUE;
     }
 
     public String getName() {
@@ -78,6 +90,5 @@ public class SchemaDataField implements Serializable {
 
     public void setId(int id) {
         this.id = id;
-    }
-    
+    }    
 }

@@ -9,6 +9,8 @@ ArchDescriptionStructuredDataItems.hbm.xml
 ArchDescriptionSubjects.hbm.xml
 Assessments.hbm.xml
 BasicNames.hbm.xml
+DatabaseFields.hbm.xml
+Databasetables.hbm.xml
 Deaccessions.hbm.xml
 DigitalObjects.hbm.xml
 Events.hbm.xml

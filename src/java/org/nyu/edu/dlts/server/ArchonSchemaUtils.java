@@ -60,7 +60,7 @@ public class ArchonSchemaUtils {
             for (String line : lines) {
                 if(line.isEmpty()) continue;
                 
-                String schemaName = line.replace(".rb", "");
+                String schemaName = line.replace(".txt", "");
                 System.out.println("Schema Name: " + schemaName);
                 
                 // get the data fields from the schema files on the server
@@ -107,8 +107,8 @@ public class ArchonSchemaUtils {
                 
                 String[] sa = line.split("\\s*,\\s*");
                 
-                String propertyName = sa[1];
-                String propertyType = sa[0];
+                String propertyName = sa[0];
+                String propertyType = sa[1];
                 
                 String propertyInfo = propertyName + ", " + propertyType.toUpperCase();
                 fieldsList.add(propertyInfo);
@@ -128,10 +128,11 @@ public class ArchonSchemaUtils {
      * @param args 
      */
     public static void main(String[] args) {
-        ArchonSchemaUtils schemaUtils = new ArchonSchemaUtils();
+        String index = "http://archives.library.illinois.edu/tmp/archon_datamodel/index.txt";
         
         try {
-            schemaUtils.processSchemaIndex();
+            ArchonSchemaUtils.setIndexPath(index);
+            ArchonSchemaUtils.processSchemaIndex();
         } catch (Exception ex) {
             Logger.getLogger(ArchonSchemaUtils.class.getName()).log(Level.SEVERE, null, ex);
         }

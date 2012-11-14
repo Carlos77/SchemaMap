@@ -26,6 +26,8 @@ public class ATSchemaUtils {
 
     private static String indexPath;
     private static String path;
+    private static String lookListValuesPath;
+    private static String noteEtcTypeValuesPath;
 
     /**
      * Method used to set the index URU and also the path
@@ -34,8 +36,12 @@ public class ATSchemaUtils {
      */
     public static void setIndexPath(String filepath) {
         String replaceString = File.separator + "index.txt";
+        
         indexPath = filepath;
         path = indexPath.replace(replaceString, "");
+        
+        lookListValuesPath = path + File.separator + "values" + File.separator + "lookupListValues.xml";
+        noteEtcTypeValuesPath = path + File.separator + "values" + File.separator + "NoteEtcTypes.xml";
     }
 
     /**
@@ -159,6 +165,83 @@ public class ATSchemaUtils {
 
         return fieldsMap;
     }
+    
+    /**
+     * Method to return the relevant data values from the lookup list, and notes etc types
+     * XMl files
+     * 
+     * @return HashMap containing data values keyed by classname->fieldName
+     * @throws Exception 
+     */
+    public static HashMap<String, ArrayList<SchemaDataField>> getDataValues() throws Exception {
+        // hashmap that hould the information
+        HashMap<String, ArrayList<SchemaDataField>> dataValueMap = new HashMap<String, ArrayList<SchemaDataField>>();
+        
+        // add lookup list data values
+        addLookupListValues(dataValueMap);
+        
+        // add notes etc type values
+        addNotesEtcValues(dataValueMap);
+        
+        return dataValueMap;
+    }
+    
+    /**
+     * Method to get the initial data values for the lookup list
+     */
+    private static void addLookupListValues(HashMap<String, ArrayList<SchemaDataField>> dataValueMap) throws Exception {
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+
+        Document doc = dBuilder.parse(lookListValuesPath);
+        doc.getDocumentElement().normalize();
+
+        //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+
+        // get the class 
+        NodeList lookupList = doc.getElementsByTagName("list");
+
+        for (int i = 0; i < lookupList.getLength(); i++) {
+            Element lookupElement = (Element) lookupList.item(i);
+
+            String listName = lookupElement.getAttribute("name");
+
+            System.out.println("\nList Name is: " + listName);
+
+            // array list to hold the field informaion
+            ArrayList<String> fieldsList = new ArrayList<String>();
+
+            // get the properties, which are the fields now
+            NodeList valuesList = lookupElement.getElementsByTagName("value");
+
+            for (int j = 0; j < valuesList.getLength(); j++) {
+                Element valueElement = (Element) valuesList.item(j);
+
+                String valueName = valueElement.getTextContent();
+                
+                System.out.println("Value: " + valueName);
+            }
+
+            // get the class that use this list and add them to the hashmap
+            NodeList usageList = lookupElement.getElementsByTagName("usage");
+
+            // add the properties to the main field list
+            //lookuplistMap.put(fixName(className), fieldsList);
+        }
+    }
+    
+    /**
+     * Method to get the initial data values for the lookup list
+     * 
+     */
+    private static void addNotesEtcValues(HashMap<String, ArrayList<SchemaDataField>> dataValueMap) throws Exception {
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+
+        Document doc = dBuilder.parse(noteEtcTypeValuesPath);
+        doc.getDocumentElement().normalize();
+    
+    }
 
     /**
      * Method to return a more meaningful class or field name
@@ -201,13 +284,11 @@ public class ATSchemaUtils {
 
         ATSchemaUtils.setIndexPath(ip);
 
-        ATSchemaUtils schemaUtils = new ATSchemaUtils();
-
         try {
             //ArrayList<SchemaData> schemaDataMapAT = FileUtil.getSchemaDataList(SchemaData.AT_TYPE);
             
-            ArrayList<SchemaData> schemaDataMapAT = new ArrayList<SchemaData>();
-            HashMap<String, ArrayList<String>> fieldsMap = schemaUtils.processSchemaIndex();
+            /*ArrayList<SchemaData> schemaDataMapAT = new ArrayList<SchemaData>();
+            HashMap<String, ArrayList<String>> fieldsMap = ATSchemaUtils.processSchemaIndex();
 
             // process all the the entries
             for (String schemaName : fieldsMap.keySet()) {
@@ -228,10 +309,12 @@ public class ATSchemaUtils {
                 SchemaData schemaData = new SchemaData(schemaName, schemaDataFields);
                 schemaData.setType(SchemaData.AT_TYPE);
                 schemaDataMapAT.add(schemaData);
-            }
+            }*/
+            
+            ATSchemaUtils.getDataValues();
             
             // try saving it
-            FileUtil.saveSchemaDataList(schemaDataMapAT);
+            //FileUtil.saveSchemaDataList(schemaDataMapAT);
 
         } catch (Exception ex) {
             Logger.getLogger(ATSchemaUtils.class.getName()).log(Level.SEVERE, null, ex);

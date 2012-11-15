@@ -34,6 +34,9 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
     // Hashmap for storing the mapping information for the fields 
     private HashMap<String, String> mappingInfo = new HashMap<String, String>();
     
+    // Hashmap for storing the data values that need to be mapped
+    private HashMap<String, ArrayList<SchemaDataField>> dataValueMapAT = new HashMap<String, ArrayList<SchemaDataField>>();
+    
     // Holds user login information
     private HashMap<String, String> userInfo = new HashMap<String, String>();
     
@@ -276,6 +279,30 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
     }
     
     /**
+     * Method to get Hashmap containing a list of values
+     * 
+     * @param type
+     * @return 
+     */
+    public HashMap<String, ArrayList<SchemaDataField>> getDataValues(String type) {
+        return dataValueMapAT;
+    }
+    
+    /**
+     * Method to update the HashMap containing a list of values
+     * 
+     * @param username
+     * @param type
+     * @param dataValuesMap
+     * @return 
+     */
+    public String updateDataValues(String username, String type, HashMap<String, ArrayList<SchemaDataField>> dataValuesMap) {
+        String message = "sucess -- " + username;
+        
+        return message;
+    }
+    
+    /**
      * Method to authenticate users
      * 
      * @param username
@@ -293,4 +320,5 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
         
         return message;
     }
+
 }

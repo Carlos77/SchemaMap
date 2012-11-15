@@ -196,9 +196,7 @@ public class ATSchemaUtils {
         Document doc = dBuilder.parse(lookListValuesPath);
         doc.getDocumentElement().normalize();
 
-        //System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
-
-        // get the class 
+        // get the lookup list items 
         NodeList lookupList = doc.getElementsByTagName("list");
 
         for (int i = 0; i < lookupList.getLength(); i++) {
@@ -208,8 +206,8 @@ public class ATSchemaUtils {
 
             System.out.println("\nList Name is: " + listName);
 
-            // array list to hold the field informaion
-            ArrayList<String> fieldsList = new ArrayList<String>();
+            // array list to hold the value store in a field object informaion
+            ArrayList<SchemaDataField> fieldsList = new ArrayList<SchemaDataField>();
 
             // get the properties, which are the fields now
             NodeList valuesList = lookupElement.getElementsByTagName("value");
@@ -219,14 +217,29 @@ public class ATSchemaUtils {
 
                 String valueName = valueElement.getTextContent();
                 
+                SchemaDataField schemaDataField = new SchemaDataField(valueName);
+                fieldsList.add(schemaDataField);
+                
                 System.out.println("Value: " + valueName);
             }
 
             // get the class that use this list and add them to the hashmap
             NodeList usageList = lookupElement.getElementsByTagName("usage");
+            
+            for (int j = 0; j < usageList.getLength(); j++) {
+                Element usageElement = (Element) usageList.item(j);
 
-            // add the properties to the main field list
-            //lookuplistMap.put(fixName(className), fieldsList);
+                String className = usageElement.getAttribute("className");
+                className = className.replace("org.archiviststoolkit.model.", "");
+                
+                String fieldName = usageElement.getAttribute("field");
+                
+                String key = className.trim() + "->" + fieldName.trim();
+                
+                dataValueMap.put(key, fieldsList);
+                
+                System.out.println("Hashmap Key: " + key);
+            }
         }
     }
     
@@ -240,7 +253,30 @@ public class ATSchemaUtils {
 
         Document doc = dBuilder.parse(noteEtcTypeValuesPath);
         doc.getDocumentElement().normalize();
-    
+        
+        // get the lookup list of note type 
+        NodeList noteList = doc.getElementsByTagName("note");
+        
+        // array list to hold the value store in a field object informaion
+        ArrayList<SchemaDataField> fieldsList = new ArrayList<SchemaDataField>();
+        
+        for (int i = 0; i < noteList.getLength(); i++) {
+            Element noteElement = (Element) noteList.item(i);
+            
+            // get the properties, which are the fields now
+            Element nameElement = (Element)noteElement.getElementsByTagName("name").item(0);
+            
+            String noteName = nameElement.getTextContent();
+            
+            SchemaDataField schemaDataField = new SchemaDataField(noteName);
+            fieldsList.add(schemaDataField);
+            
+            System.out.println("Note name: " + noteName);
+        }
+        
+        // add the list to the values hashmap
+        String key = "ArchDescriptionRepeatingData->NotesEtcType";
+        dataValueMap.put(key, fieldsList);
     }
 
     /**

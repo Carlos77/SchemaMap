@@ -8,6 +8,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.nyu.edu.dlts.client.model.SchemaData;
+import org.nyu.edu.dlts.client.model.SchemaDataField;
 
 /**
  *
@@ -20,6 +21,10 @@ public interface SchemaDataServiceAsync {
     public void getSchemaDataAR(AsyncCallback<ArrayList<SchemaData>> callback);
     
     public void getSchemaDataAS(AsyncCallback<ArrayList<SchemaData>> callback);
+    
+    public void getDataValues(String type, AsyncCallback<HashMap<String, ArrayList<SchemaDataField>>> callback);
+    
+    public void updateDataValues(String username, String type, HashMap<String, ArrayList<SchemaDataField>> dataValuesMap, AsyncCallback<String> callback);
     
     public void updateSchemaData(String username, SchemaData schemaData, AsyncCallback<String> callback);
 

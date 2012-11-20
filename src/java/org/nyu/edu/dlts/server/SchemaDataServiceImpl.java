@@ -281,11 +281,30 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
     /**
      * Method to get Hashmap containing a list of values
      * 
-     * @param type
+     * @param type  This is not used for now
      * @return 
      */
     public HashMap<String, ArrayList<SchemaDataField>> getDataValues(String type) {
-        return dataValueMapAT;
+        try {
+            dataValueMapAT = null; // DEBUG code
+            System.out.println("Return the data value for: " + type);
+            
+            
+            // TODO try reading from the database
+            
+            if(dataValueMapAT == null) {
+                dataValueMapAT = ATSchemaUtils.getDataValues();
+                
+                // TODO save it to the database now
+                
+            }
+            
+            
+            return dataValueMapAT;
+        } catch (Exception ex) {
+            Logger.getLogger(SchemaDataServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
     
     /**

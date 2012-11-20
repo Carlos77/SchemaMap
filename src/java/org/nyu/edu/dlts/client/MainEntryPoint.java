@@ -34,7 +34,9 @@ import com.sencha.gxt.widget.core.client.info.Info;
 import com.sencha.gxt.widget.core.client.selection.SelectionChangedEvent;
 import com.sencha.gxt.widget.core.client.selection.SelectionChangedEvent.SelectionChangedHandler;
 import java.util.ArrayList;
+import java.util.HashMap;
 import org.nyu.edu.dlts.client.model.SchemaData;
+import org.nyu.edu.dlts.client.model.SchemaDataField;
 import org.nyu.edu.dlts.client.model.SchemaDataProperties;
 import org.nyu.edu.dlts.client.widgets.LoginDialog;
 import org.nyu.edu.dlts.client.widgets.SchemaDataInfoPanel;
@@ -45,8 +47,9 @@ import org.nyu.edu.dlts.client.widgets.SchemaDataInfoPanel;
  * @author nathan
  */
 public class MainEntryPoint implements IsWidget, EntryPoint {
-    // The listviews that hold schema names for AT, Archon, and ASPace
+    // The listviews that hold schema names and values for AT, Archon, and ASPace
     private ListView<SchemaData, String> schemaListViewAT;
+    private ListView<SchemaData, String> schemaListViewATV;
     private ListView<SchemaData, String> schemaListViewAS;
     private ListView<SchemaData, String> schemaListViewAR;
     
@@ -228,7 +231,25 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
         schemaListViewAT.getSelectionModel().addSelectionChangedHandler(changeHandler);
         cp.add(schemaListViewAT);
         
-        // Add the contentPanel that hold AT schema data
+        // Add the contentPanel that hold AT value data
+        cp = new ContentPanel(appearance);
+        cp.setAnimCollapse(false);
+        cp.setHeadingText("AT Values");
+        container.add(cp);
+
+        // Create the store that the contains the AT initial data value
+        ListStore<SchemaData> storeATV = new ListStore<SchemaData>(dp.id());
+        storeATV.addSortInfo(new StoreSortInfo<SchemaData>(dp.name(), SortDir.ASC));
+        SchemaData tempValue = new SchemaData("Loading AT Data Values, Please wait ...", null);
+        tempValue.setType(SchemaData.AT_VALUE);
+        storeATV.add(tempValue);
+
+        // Create the tree using the store and value provider for the name field
+        schemaListViewATV = new ListView<SchemaData, String>(storeATV, dp.name());
+        schemaListViewATV.getSelectionModel().addSelectionChangedHandler(changeHandler);
+        cp.add(schemaListViewATV);
+        
+        // Add the contentPanel that hold Archon schema data
         cp = new ContentPanel(appearance);
         cp.setAnimCollapse(false);
         cp.setHeadingText("Archon Schema");
@@ -337,9 +358,39 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
 
         // make the call to service 
         SchemaDataServiceAsync service = getService();
+        
         service.getSchemaDataAT(callbackAT);
         service.getSchemaDataAR(callbackAR);
         service.getSchemaDataAS(callbackAS);
+    }
+    
+    /**
+     * Method to make asynch call to load the schema data values
+     */
+    private void loadSchemaDataValue() {
+        // Create an asynchronous callback to handle the AT schema data
+        AsyncCallback<HashMap<String, ArrayList<SchemaDataField>>> callbackATV = new AsyncCallback<HashMap<String, ArrayList<SchemaDataField>>>() {
+
+            public void onSuccess(HashMap<String, ArrayList<SchemaDataField>> result) {
+                // generate temporary arraylist that holds dummy schemadata
+                ArrayList<SchemaData> schemaDataList = new ArrayList<SchemaData>();
+                        
+                schemaListViewATV.getStore().clear();
+                //schemaListViewATV.getStore().addAll(result);
+                
+                System.out.println("Loaded AT Schema Data Values: " + result.size());
+            }
+
+            public void onFailure(Throwable caught) {
+                System.out.println("Error loading AT schema data values");
+            }
+        };
+        
+
+        // make the call to service 
+        SchemaDataServiceAsync service = getService();
+        
+        service.getDataValues(SchemaData.AT_VALUE, callbackATV);
     }
     
     /**

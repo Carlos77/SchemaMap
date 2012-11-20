@@ -13,6 +13,7 @@ import java.util.ArrayList;
  */
 public class SchemaData implements Serializable {
     public static final String AT_TYPE = "AT";
+    public static final String AT_VALUE = "AT VALUE";
     public static final String AS_TYPE = "AS";
     public static final String AR_TYPE = "AR";
     

@@ -142,7 +142,7 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
 
         BoxLayoutData flex = new BoxLayoutData(new Margins(0, 5, 0, 0));
         flex.setFlex(1);
-        HTML html = new HTML("<b>Archives Space Schema Mapper</b> v0.3 (11/13/2012)");
+        HTML html = new HTML("<b>Archives Space Schema Mapper</b> v0.4 (11/21/2012)");
         container.add(html, flex);
         
         // add the html that hold the login information
@@ -234,7 +234,7 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
         // Add the contentPanel that hold AT value data
         cp = new ContentPanel(appearance);
         cp.setAnimCollapse(false);
-        cp.setHeadingText("AT Values");
+        cp.setHeadingText("AT Data Values");
         container.add(cp);
 
         // Create the store that the contains the AT initial data value
@@ -374,11 +374,18 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
             public void onSuccess(HashMap<String, ArrayList<SchemaDataField>> result) {
                 // generate temporary arraylist that holds dummy schemadata
                 ArrayList<SchemaData> schemaDataList = new ArrayList<SchemaData>();
-                        
-                schemaListViewATV.getStore().clear();
-                //schemaListViewATV.getStore().addAll(result);
                 
-                System.out.println("Loaded AT Schema Data Values: " + result.size());
+                for (String key: result.keySet()) {
+                    ArrayList<SchemaDataField> fieldList = result.get(key);
+                
+                    SchemaData schemaData = new SchemaData(key, SchemaData.AT_VALUE, fieldList);
+                    schemaDataList.add(schemaData);
+                }
+                
+                schemaListViewATV.getStore().clear();
+                schemaListViewATV.getStore().addAll(schemaDataList);
+                
+                System.out.println("Loaded AT Schema Data Values: " + schemaDataList.size());
             }
 
             public void onFailure(Throwable caught) {
@@ -429,6 +436,9 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
 
         // call the method to load the schema information
         loadSchemaData();
+        
+        // call the method to load the schema data values
+        loadSchemaDataValue();
         
         // check cookie if we are loged on
         String authorized = Cookies.getCookie("authorized");

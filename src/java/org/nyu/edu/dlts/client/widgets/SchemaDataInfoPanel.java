@@ -55,7 +55,6 @@ public class SchemaDataInfoPanel implements IsWidget {
     private SchemaData schemaData;
     private ArrayList<SchemaData> aspaceSchemaDataList;
     private Grid<SchemaDataField> grid;
-    private TextButton viewValueButton;
     private TextField mapToTextField;
     private TextField noteTextField;
 
@@ -80,9 +79,21 @@ public class SchemaDataInfoPanel implements IsWidget {
         IdentityValueProvider<SchemaDataField> identity = new IdentityValueProvider<SchemaDataField>();
 
         RowNumberer<SchemaDataField> numberer = new RowNumberer<SchemaDataField>(identity);
-
-        ColumnConfig<SchemaDataField, String> nameCol = new ColumnConfig<SchemaDataField, String>(props.name(), 150, "Field Name");
-        ColumnConfig<SchemaDataField, String> typeCol = new ColumnConfig<SchemaDataField, String>(props.type(), 150, "Type and Length");
+        
+        // initialize the column names
+        String nameColTitle = "Field Name";
+        String typeColTitle = "Type and Length";
+        String heading = schemaData.getName() + " Schema Fields";
+        
+        // if schema data is for values then rename the column names
+        if(schemaData.getType().equals(SchemaData.AT_VALUE)) {
+            nameColTitle = "Data Value";
+            typeColTitle = "Data Type";
+            heading = schemaData.getName();
+        }
+        
+        ColumnConfig<SchemaDataField, String> nameCol = new ColumnConfig<SchemaDataField, String>(props.name(), 150, nameColTitle);
+        ColumnConfig<SchemaDataField, String> typeCol = new ColumnConfig<SchemaDataField, String>(props.type(), 150, typeColTitle);
         ColumnConfig<SchemaDataField, String> mappedToCol = new ColumnConfig<SchemaDataField, String>(props.mappedTo(), 250, "Mapped To");
         ColumnConfig<SchemaDataField, String> noteCol = new ColumnConfig<SchemaDataField, String>(props.note(), 400, "Mapping Note");
 
@@ -119,7 +130,7 @@ public class SchemaDataInfoPanel implements IsWidget {
         numberer.initPlugin(grid);
 
         FramedPanel fp = new FramedPanel();
-        fp.setHeadingText(schemaData.getName() + " Schema Fields");
+        fp.setHeadingText(heading);
         fp.setPixelSize(980, 350);
         fp.addStyleName("margin-10");
         fp.setWidget(grid);
@@ -153,7 +164,8 @@ public class SchemaDataInfoPanel implements IsWidget {
 
         // TO-DO if the person is logged in then display this
         if (MainEntryPoint.loggedIn && (schemaData.getType().equals(SchemaData.AT_TYPE)
-                || schemaData.getType().equals(SchemaData.AR_TYPE))) {
+                || schemaData.getType().equals(SchemaData.AR_TYPE))
+                || schemaData.getType().equals(SchemaData.AT_VALUE)) {
             container.add(getEditPanel(), new VerticalLayoutData(-1, -1, new Margins(4)));
         }
 
@@ -166,9 +178,19 @@ public class SchemaDataInfoPanel implements IsWidget {
      * @return
      */
     private ContentPanel getEditPanel() {
+        String heading = "Edit Mapping and Schema Information";
+        
+        // used to specify if certain gui components shown depending on schema data type
+        boolean show = true; 
+        
+        if(schemaData.getType().equals(SchemaData.AT_VALUE)) {
+            heading = "Edit Mapping Information";
+            show = false;
+        }
+        
         // add the buttons that allow for entering the mapping information
         FramedPanel fp = new FramedPanel();
-        fp.setHeadingText("Edit Mapping and Schema Information");
+        fp.setHeadingText(heading);
         fp.setPixelSize(980, 200);
         fp.addStyleName("margin-10");
 
@@ -184,7 +206,10 @@ public class SchemaDataInfoPanel implements IsWidget {
         final ComboBox<SchemaData> combo = new ComboBox<SchemaData>(store, props.nameLabel());
         combo.setForceSelection(true);
         combo.setTriggerAction(TriggerAction.ALL);
-        vlc.add(new FieldLabel(combo, "ASpace Schema"), new VerticalLayoutData(1, -1));
+        
+        if(show) {
+            vlc.add(new FieldLabel(combo, "ASpace Schema"), new VerticalLayoutData(1, -1));
+        }
 
         mapToTextField = new TextField();
         vlc.add(new FieldLabel(mapToTextField, "Mapped To"), new VerticalLayoutData(1, -1));
@@ -208,17 +233,9 @@ public class SchemaDataInfoPanel implements IsWidget {
             }
         });
 
-        fp.addButton(viewFieldButton);
-        
-        // add the button to update it now
-        viewValueButton = new TextButton("View Field Values", new SelectHandler() {
-
-            public void onSelect(SelectEvent event) {
-                displayFieldValues();
-            }
-        });
-
-        fp.addButton(viewValueButton);
+        if(show) {
+            fp.addButton(viewFieldButton);
+        }
         
         // add the button to update it now
         TextButton copyFieldButton = new TextButton("Copy Fields Mapping", new SelectHandler() {
@@ -304,17 +321,6 @@ public class SchemaDataInfoPanel implements IsWidget {
     private void displaySchemaFieldsWindow(SchemaData sdata) {
         SchemaFieldsWindow window = new SchemaFieldsWindow(this, sdata);
         window.show();
-    }
-    
-    /**
-     * Method to display the values for a particular field in there are any
-     */
-    private void displayFieldValues() {
-        SchemaDataField field = grid.getSelectionModel().getSelectedItem();
-        
-        if(field != null) { 
-            Info.display("Display Field Values", "Test code ... " + field.getName());
-        }
     }
 
     /**

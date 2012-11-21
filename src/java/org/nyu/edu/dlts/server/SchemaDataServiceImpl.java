@@ -246,8 +246,12 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
         try {
             if(schemaData.getType().equals(SchemaData.AT_TYPE)) {
                 updateSchemaDataList(userId, schemaData, schemaDataListAT);
-            } else { // must be Archon list we updating
+            } else if (schemaData.getType().equals(SchemaData.AR_TYPE)){ // must be Archon list we updating
                 updateSchemaDataList(userId, schemaData, schemaDataListAR);
+            } else if(schemaData.getType().equals(SchemaData.AT_VALUE)) {
+                updateDataValues(userId, SchemaData.AT_VALUE, schemaData.getName(), schemaData.getFields());
+            } else {
+                return "Cannot Update -- " + schemaData.getName();
             }
         
             return "Updated -- " + schemaData.getName();
@@ -299,7 +303,6 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
                 
             }
             
-            
             return dataValueMapAT;
         } catch (Exception ex) {
             Logger.getLogger(SchemaDataServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
@@ -315,7 +318,7 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
      * @param dataValuesMap
      * @return 
      */
-    public String updateDataValues(String username, String type, HashMap<String, ArrayList<SchemaDataField>> dataValuesMap) {
+    public String updateDataValues(String username, String type, String key, ArrayList<SchemaDataField> dataValues) {
         String message = "sucess -- " + username;
         
         return message;

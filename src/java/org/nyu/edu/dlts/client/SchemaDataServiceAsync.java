@@ -24,7 +24,7 @@ public interface SchemaDataServiceAsync {
     
     public void getDataValues(String type, AsyncCallback<HashMap<String, ArrayList<SchemaDataField>>> callback);
     
-    public void updateDataValues(String username, String type, HashMap<String, ArrayList<SchemaDataField>> dataValuesMap, AsyncCallback<String> callback);
+    public void updateDataValues(String username, String type, String key, ArrayList<SchemaDataField> dataValues, AsyncCallback<String> callback);
     
     public void updateSchemaData(String username, SchemaData schemaData, AsyncCallback<String> callback);
 

@@ -225,6 +225,7 @@ public class ATSchemaUtils {
 
             // get the class that use this list and add them to the hashmap
             NodeList usageList = lookupElement.getElementsByTagName("usage");
+            String key = "";
             
             for (int j = 0; j < usageList.getLength(); j++) {
                 Element usageElement = (Element) usageList.item(j);
@@ -234,12 +235,19 @@ public class ATSchemaUtils {
                 
                 String fieldName = usageElement.getAttribute("field");
                 
-                String key = className.trim() + "->" + fieldName.trim();
-                
-                dataValueMap.put(key, fieldsList);
-                
-                System.out.println("Hashmap Key: " + key);
+                if(key.isEmpty()) {
+                    key = className.trim() + "->" + fieldName.trim();
+                } else {
+                    key += "/" + className.trim() + "->" + fieldName.trim();
+                }
             }
+            
+            // set the key to list name if it's empty
+            if(key.isEmpty()) {
+                key = listName;
+            }
+            
+            dataValueMap.put(key, fieldsList);    
         }
     }
     
@@ -347,7 +355,24 @@ public class ATSchemaUtils {
                 schemaDataMapAT.add(schemaData);
             }*/
             
-            ATSchemaUtils.getDataValues();
+            HashMap<String, ArrayList<SchemaDataField>> dataValuesMap = ATSchemaUtils.getDataValues();
+            
+            DatabaseUtil.setupTestDatabaseInfo();
+            DatabaseUtil.getConnection();
+            DatabaseUtil.saveDataValues("testId", SchemaData.AT_VALUE, dataValuesMap);
+            
+            // read back this data
+            HashMap<String, ArrayList<SchemaDataField>> dataValuesMap2 = DatabaseUtil.getDataValues(SchemaData.AT_VALUE);
+            
+            System.out.println("Length of data types: " + dataValuesMap2.size());
+            
+            for (String key: dataValuesMap2.keySet()) {
+                ArrayList<SchemaDataField> fieldList = dataValuesMap2.get(key);
+                
+                SchemaData schemaData = new SchemaData(key, SchemaData.AT_VALUE, fieldList);
+                
+                System.out.println("\nThe field name: " + key + " values: " + fieldList.size());
+            }
             
             // try saving it
             //FileUtil.saveSchemaDataList(schemaDataMapAT);

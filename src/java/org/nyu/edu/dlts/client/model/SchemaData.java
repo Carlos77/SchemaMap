@@ -45,7 +45,22 @@ public class SchemaData implements Serializable {
         this.note = "none";
         this.fields = fields;
     }
-
+    
+    /**
+     * Constructor that used when the type of schema needs to be specified
+     * 
+     * @param name
+     * @param type
+     * @param fields 
+     */
+    public SchemaData(String name, String type, ArrayList<SchemaDataField> fields) {
+        this.id = Integer.valueOf(COUNTER++);
+        this.name = name;
+        this.type = type;
+        this.note = "N/A";
+        this.fields = fields;
+    }
+    
     public ArrayList<SchemaDataField> getFields() {
         return fields;
     }

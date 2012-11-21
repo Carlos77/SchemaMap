@@ -128,7 +128,72 @@ public class DatabaseUtil {
 
         preparedStatement.executeUpdate();
     }
+    
+    /**
+     * Method to read the schema data values from the database. The last row
+     * in the table is returned. The other entries for backup purposes
+     * 
+     * @param schemaDataType
+     * @return
+     * @throws Exception 
+     */
+    public static HashMap<String, ArrayList<SchemaDataField>> getDataValues(String schemaDataType) {
+        HashMap<String, ArrayList<SchemaDataField>> dataValueMap = null;
 
+        try {
+            // get the file name to save to
+            String query = "SELECT * FROM " + database
+                    + ".schemaDataList WHERE schemaDataType = '" + schemaDataType + "' ORDER BY schemaDataListId DESC LIMIT 1";
+
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+
+            if (rs.next()) {
+                String xmlContent = rs.getString("schemaDataList");
+
+                // convert object from xml then return the object
+                XStream xstream = new XStream();
+
+                dataValueMap = (HashMap<String, ArrayList<SchemaDataField>>) xstream.fromXML(xmlContent);
+            }
+
+        } catch (Exception ex) {
+            Logger.getLogger(FileUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return dataValueMap;
+    }
+
+    /**
+     * Method to save the schema data object as xml to the database
+     * 
+     * @param schemaData 
+     */
+    public static void saveDataValues(String userId, String schemaDataType, HashMap<String, ArrayList<SchemaDataField>> dataValueMap) throws Exception {
+        // get the file name to save to
+        String insertSQL = "INSERT INTO " + database
+                + ".SchemaDataList (schemaDataType, schemaDataList, modifyDate, modifyBy) "
+                + "VALUES(?,?,?,?)";
+
+        // convert object to xml then save to file
+        XStream xstream = new XStream();
+
+        String xmlContent = xstream.toXML(dataValueMap);
+
+        // get the Time Stamp now
+        Timestamp modifyDate = new Timestamp(new Date().getTime());
+
+        // save the schemadata list to the database
+        PreparedStatement preparedStatement = conn.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS);
+
+        preparedStatement.setString(1, schemaDataType);
+        preparedStatement.setString(2, xmlContent);
+        preparedStatement.setTimestamp(3, modifyDate);
+        preparedStatement.setString(4, userId);
+
+        preparedStatement.executeUpdate();
+    }
+    
     /**
      * Method to establish a connection to the Variations mysql database
      * 

@@ -117,22 +117,6 @@
 		
 	</list>
 	
-	<list name="Extent type" listType="1">
-		
-		<usage className="org.archiviststoolkit.model.Accessions" field="extentType"/>
-		
-		<usage className="org.archiviststoolkit.model.Resources" field="extentType"/>
-		
-		<usage className="org.archiviststoolkit.model.ResourcesComponents" field="extentType"/>
-		
-		<usage className="org.archiviststoolkit.model.Deaccessions" field="extentType"/>
-		
-		<value>Cubic feet</value>
-		
-		<value>Linear feet</value>
-		
-	</list>
-	
 	<list name="File use attributes" listType="1">
 	
 	<!-- Default  values drawn from the UC, San Diego Libraries list of File Use Types. -->

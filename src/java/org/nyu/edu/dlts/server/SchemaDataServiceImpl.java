@@ -35,7 +35,7 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
     private HashMap<String, String> mappingInfo = new HashMap<String, String>();
     
     // Hashmap for storing the data values that need to be mapped
-    private HashMap<String, ArrayList<SchemaDataField>> dataValueMapAT = new HashMap<String, ArrayList<SchemaDataField>>();
+    private HashMap<String, SchemaData> dataValueMapAT = new HashMap<String, SchemaData>();
     
     // Holds user login information
     private HashMap<String, String> userInfo = new HashMap<String, String>();
@@ -249,7 +249,7 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
             } else if (schemaData.getType().equals(SchemaData.AR_TYPE)){ // must be Archon list we updating
                 updateSchemaDataList(userId, schemaData, schemaDataListAR);
             } else if(schemaData.getType().equals(SchemaData.AT_VALUE)) {
-                updateDataValues(userId, SchemaData.AT_VALUE, schemaData.getName(), schemaData.getFields());
+                updateDataValues(userId, schemaData);
             } else {
                 return "Cannot Update -- " + schemaData.getName();
             }
@@ -288,19 +288,18 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
      * @param type  This is not used for now
      * @return 
      */
-    public HashMap<String, ArrayList<SchemaDataField>> getDataValues(String type) {
+    public HashMap<String, SchemaData> getDataValues(String type) {
         try {
-            dataValueMapAT = null; // DEBUG code
+            // try reading this from the database
+            dataValueMapAT = DatabaseUtil.getDataValues(type);
+            
             System.out.println("Return the data value for: " + type);
-            
-            
-            // TODO try reading from the database
             
             if(dataValueMapAT == null) {
                 dataValueMapAT = ATSchemaUtils.getDataValues();
                 
-                // TODO save it to the database now
-                
+                // save it to the database now
+                DatabaseUtil.saveDataValues("admin", type, dataValueMapAT);
             }
             
             return dataValueMapAT;
@@ -311,16 +310,28 @@ public class SchemaDataServiceImpl extends RemoteServiceServlet implements Schem
     }
     
     /**
-     * Method to update the HashMap containing a list of values
+     * Method to update the HashMap containing a list of AT values
      * 
      * @param username
      * @param type
      * @param dataValuesMap
      * @return 
      */
-    public String updateDataValues(String username, String type, String key, ArrayList<SchemaDataField> dataValues) {
+    public String updateDataValues(String username, SchemaData schemaData) {
         String message = "sucess -- " + username;
-        
+
+        try {
+            if (schemaData.getType().equals(SchemaData.AT_VALUE)) {
+                dataValueMapAT.put(schemaData.getName(), schemaData);
+                
+                DatabaseUtil.saveDataValues(username, SchemaData.AT_VALUE, dataValueMapAT);
+            } else {
+                message = "Failed to update -- Unknown data values ...";
+            }
+        } catch (Exception e) {
+            message = "Failed to update -- can't save to the database ...";
+        }
+
         return message;
     }
     

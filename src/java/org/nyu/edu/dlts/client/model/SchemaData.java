@@ -57,7 +57,7 @@ public class SchemaData implements Serializable {
         this.id = Integer.valueOf(COUNTER++);
         this.name = name;
         this.type = type;
-        this.note = "N/A";
+        this.note = "";
         this.fields = fields;
     }
     

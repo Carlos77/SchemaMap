@@ -137,8 +137,8 @@ public class DatabaseUtil {
      * @return
      * @throws Exception 
      */
-    public static HashMap<String, ArrayList<SchemaDataField>> getDataValues(String schemaDataType) {
-        HashMap<String, ArrayList<SchemaDataField>> dataValueMap = null;
+    public static HashMap<String, SchemaData> getDataValues(String schemaDataType) {
+        HashMap<String, SchemaData> dataValueMap = null;
 
         try {
             // get the file name to save to
@@ -154,7 +154,7 @@ public class DatabaseUtil {
                 // convert object from xml then return the object
                 XStream xstream = new XStream();
 
-                dataValueMap = (HashMap<String, ArrayList<SchemaDataField>>) xstream.fromXML(xmlContent);
+                dataValueMap = (HashMap<String, SchemaData>) xstream.fromXML(xmlContent);
             }
 
         } catch (Exception ex) {
@@ -169,7 +169,7 @@ public class DatabaseUtil {
      * 
      * @param schemaData 
      */
-    public static void saveDataValues(String userId, String schemaDataType, HashMap<String, ArrayList<SchemaDataField>> dataValueMap) throws Exception {
+    public static void saveDataValues(String userId, String schemaDataType, HashMap<String, SchemaData> dataValueMap) throws Exception {
         // get the file name to save to
         String insertSQL = "INSERT INTO " + database
                 + ".SchemaDataList (schemaDataType, schemaDataList, modifyDate, modifyBy) "

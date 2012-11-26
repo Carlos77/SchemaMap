@@ -24,9 +24,7 @@ public interface SchemaDataService extends RemoteService {
     
     public ArrayList<SchemaData> getSchemaDataAS();
     
-    public HashMap<String, ArrayList<SchemaDataField>> getDataValues(String type);
-    
-    public String updateDataValues(String username, String type, String key, ArrayList<SchemaDataField> dataValues);
+    public HashMap<String, SchemaData> getDataValues(String type);
     
     public String updateSchemaData(String username, SchemaData schemaData);
     

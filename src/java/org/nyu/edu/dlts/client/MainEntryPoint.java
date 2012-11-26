@@ -142,7 +142,7 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
 
         BoxLayoutData flex = new BoxLayoutData(new Margins(0, 5, 0, 0));
         flex.setFlex(1);
-        HTML html = new HTML("<b>Archives Space Schema Mapper</b> v0.4 (11/21/2012)");
+        HTML html = new HTML("<b>Archives Space Schema Mapper</b> v0.4 (11/26/2012)");
         container.add(html, flex);
         
         // add the html that hold the login information
@@ -369,16 +369,14 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
      */
     private void loadSchemaDataValue() {
         // Create an asynchronous callback to handle the AT schema data
-        AsyncCallback<HashMap<String, ArrayList<SchemaDataField>>> callbackATV = new AsyncCallback<HashMap<String, ArrayList<SchemaDataField>>>() {
+        AsyncCallback<HashMap<String, SchemaData>> callbackATV = new AsyncCallback<HashMap<String, SchemaData>>() {
 
-            public void onSuccess(HashMap<String, ArrayList<SchemaDataField>> result) {
+            public void onSuccess(HashMap<String, SchemaData> result) {
                 // generate temporary arraylist that holds dummy schemadata
                 ArrayList<SchemaData> schemaDataList = new ArrayList<SchemaData>();
                 
                 for (String key: result.keySet()) {
-                    ArrayList<SchemaDataField> fieldList = result.get(key);
-                
-                    SchemaData schemaData = new SchemaData(key, SchemaData.AT_VALUE, fieldList);
+                    SchemaData schemaData = result.get(key);
                     schemaDataList.add(schemaData);
                 }
                 

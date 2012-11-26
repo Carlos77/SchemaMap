@@ -22,9 +22,7 @@ public interface SchemaDataServiceAsync {
     
     public void getSchemaDataAS(AsyncCallback<ArrayList<SchemaData>> callback);
     
-    public void getDataValues(String type, AsyncCallback<HashMap<String, ArrayList<SchemaDataField>>> callback);
-    
-    public void updateDataValues(String username, String type, String key, ArrayList<SchemaDataField> dataValues, AsyncCallback<String> callback);
+    public void getDataValues(String type, AsyncCallback<HashMap<String, SchemaData>> callback);
     
     public void updateSchemaData(String username, SchemaData schemaData, AsyncCallback<String> callback);
 

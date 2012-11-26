@@ -28,6 +28,7 @@ public class ATSchemaUtils {
     private static String path;
     private static String lookListValuesPath;
     private static String noteEtcTypeValuesPath;
+    private static String inLineTagsValuesPath;
 
     /**
      * Method used to set the index URU and also the path
@@ -42,6 +43,7 @@ public class ATSchemaUtils {
         
         lookListValuesPath = path + File.separator + "values" + File.separator + "lookupListValues.xml";
         noteEtcTypeValuesPath = path + File.separator + "values" + File.separator + "NoteEtcTypes.xml";
+        inLineTagsValuesPath = path + File.separator + "values" + File.separator + "inLineTags.xml";
     }
 
     /**
@@ -173,9 +175,9 @@ public class ATSchemaUtils {
      * @return HashMap containing data values keyed by classname->fieldName
      * @throws Exception 
      */
-    public static HashMap<String, ArrayList<SchemaDataField>> getDataValues() throws Exception {
+    public static HashMap<String, SchemaData> getDataValues() throws Exception {
         // hashmap that hould the information
-        HashMap<String, ArrayList<SchemaDataField>> dataValueMap = new HashMap<String, ArrayList<SchemaDataField>>();
+        HashMap<String, SchemaData> dataValueMap = new HashMap<String, SchemaData>();
         
         // add lookup list data values
         addLookupListValues(dataValueMap);
@@ -183,13 +185,16 @@ public class ATSchemaUtils {
         // add notes etc type values
         addNotesEtcValues(dataValueMap);
         
+        // add the wrap in tag values
+        addInLineTagValues(dataValueMap);
+        
         return dataValueMap;
     }
     
     /**
      * Method to get the initial data values for the lookup list
      */
-    private static void addLookupListValues(HashMap<String, ArrayList<SchemaDataField>> dataValueMap) throws Exception {
+    private static void addLookupListValues(HashMap<String, SchemaData> dataValueMap) throws Exception {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
@@ -247,15 +252,17 @@ public class ATSchemaUtils {
                 key = listName;
             }
             
-            dataValueMap.put(key, fieldsList);    
+            SchemaData schemaData = new SchemaData(key, SchemaData.AT_VALUE, fieldsList);
+            
+            dataValueMap.put(key, schemaData);    
         }
     }
     
     /**
-     * Method to get the initial data values for the lookup list
+     * Method to get the initial data values for the notes ETC type
      * 
      */
-    private static void addNotesEtcValues(HashMap<String, ArrayList<SchemaDataField>> dataValueMap) throws Exception {
+    private static void addNotesEtcValues(HashMap<String, SchemaData> dataValueMap) throws Exception {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
@@ -284,7 +291,49 @@ public class ATSchemaUtils {
         
         // add the list to the values hashmap
         String key = "ArchDescriptionRepeatingData->NotesEtcType";
-        dataValueMap.put(key, fieldsList);
+        SchemaData schemaData = new SchemaData(key, SchemaData.AT_VALUE, fieldsList);
+        
+        dataValueMap.put(key, schemaData);
+    }
+    
+    /**
+     * Method to add the initial in line tags
+     * 
+     * @param dataValueMap
+     * @throws Exception 
+     */
+    private static void addInLineTagValues(HashMap<String, SchemaData> dataValueMap) throws Exception {
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+
+        Document doc = dBuilder.parse(inLineTagsValuesPath);
+        doc.getDocumentElement().normalize();
+        
+        // get the lookup list of note type 
+        NodeList tagList = doc.getElementsByTagName("tag");
+        
+        // array list to hold the value store in a field object informaion
+        ArrayList<SchemaDataField> fieldsList = new ArrayList<SchemaDataField>();
+        
+        for (int i = 0; i < tagList.getLength(); i++) {
+            Element tagElement = (Element) tagList.item(i);
+            
+            // get the properties, which are the fields now
+            Element nameElement = (Element)tagElement.getElementsByTagName("name").item(0);
+            
+            String tagName = "<" + nameElement.getTextContent() + "/>";
+            
+            SchemaDataField schemaDataField = new SchemaDataField(tagName);
+            fieldsList.add(schemaDataField);
+            
+            System.out.println("Tag name: " + tagName);
+        }
+        
+        // add the list to the values hashmap
+        String key = "Wrap In Tags";
+        SchemaData schemaData = new SchemaData(key, SchemaData.AT_VALUE, fieldsList);
+        
+        dataValueMap.put(key, schemaData);
     }
 
     /**
@@ -355,21 +404,20 @@ public class ATSchemaUtils {
                 schemaDataMapAT.add(schemaData);
             }*/
             
-            HashMap<String, ArrayList<SchemaDataField>> dataValuesMap = ATSchemaUtils.getDataValues();
+            HashMap<String, SchemaData> dataValuesMap = ATSchemaUtils.getDataValues();
             
             DatabaseUtil.setupTestDatabaseInfo();
             DatabaseUtil.getConnection();
             DatabaseUtil.saveDataValues("testId", SchemaData.AT_VALUE, dataValuesMap);
             
             // read back this data
-            HashMap<String, ArrayList<SchemaDataField>> dataValuesMap2 = DatabaseUtil.getDataValues(SchemaData.AT_VALUE);
+            HashMap<String, SchemaData> dataValuesMap2 = DatabaseUtil.getDataValues(SchemaData.AT_VALUE);
             
             System.out.println("Length of data types: " + dataValuesMap2.size());
             
             for (String key: dataValuesMap2.keySet()) {
-                ArrayList<SchemaDataField> fieldList = dataValuesMap2.get(key);
-                
-                SchemaData schemaData = new SchemaData(key, SchemaData.AT_VALUE, fieldList);
+                SchemaData schemaData = dataValuesMap2.get(key);
+                ArrayList<SchemaDataField> fieldList = schemaData.getFields(); 
                 
                 System.out.println("\nThe field name: " + key + " values: " + fieldList.size());
             }

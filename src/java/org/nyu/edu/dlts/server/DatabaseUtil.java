@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -44,6 +45,8 @@ public class DatabaseUtil {
         String query = "SELECT * FROM " + database + ".USERS";
 
         try {
+            getConnection();
+            
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
 
@@ -52,6 +55,8 @@ public class DatabaseUtil {
                 String password = rs.getString("password");
                 userInfo.put(userId, password);
             }
+            
+            closeConnection();
         } catch (Exception ex) {
             Logger.getLogger(DatabaseUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -73,6 +78,8 @@ public class DatabaseUtil {
         ArrayList<SchemaData> schemaDataList = null;
 
         try {
+            getConnection();
+            
             // get the file name to save to
             String query = "SELECT * FROM " + database
                     + ".schemaDataList WHERE schemaDataType = '" + schemaDataType + "' ORDER BY schemaDataListId DESC LIMIT 1";
@@ -89,6 +96,7 @@ public class DatabaseUtil {
                 schemaDataList = (ArrayList<SchemaData>) xstream.fromXML(xmlContent);
             }
 
+            closeConnection();
         } catch (Exception ex) {
             Logger.getLogger(FileUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -102,6 +110,8 @@ public class DatabaseUtil {
      * @param schemaData 
      */
     public static void saveSchemaDataList(String userId, ArrayList<SchemaData> schemaDataList) throws Exception {
+        getConnection();
+        
         // get the file name to save to
         String insertSQL = "INSERT INTO " + database
                 + ".SchemaDataList (schemaDataType, schemaDataList, modifyDate, modifyBy) "
@@ -127,6 +137,8 @@ public class DatabaseUtil {
         preparedStatement.setString(4, userId);
 
         preparedStatement.executeUpdate();
+        
+        closeConnection();
     }
     
     /**
@@ -141,6 +153,8 @@ public class DatabaseUtil {
         HashMap<String, SchemaData> dataValueMap = null;
 
         try {
+            getConnection();
+            
             // get the file name to save to
             String query = "SELECT * FROM " + database
                     + ".schemaDataList WHERE schemaDataType = '" + schemaDataType + "' ORDER BY schemaDataListId DESC LIMIT 1";
@@ -156,7 +170,8 @@ public class DatabaseUtil {
 
                 dataValueMap = (HashMap<String, SchemaData>) xstream.fromXML(xmlContent);
             }
-
+            
+            closeConnection();
         } catch (Exception ex) {
             Logger.getLogger(FileUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -170,6 +185,8 @@ public class DatabaseUtil {
      * @param schemaData 
      */
     public static void saveDataValues(String userId, String schemaDataType, HashMap<String, SchemaData> dataValueMap) throws Exception {
+        getConnection();
+        
         // get the file name to save to
         String insertSQL = "INSERT INTO " + database
                 + ".SchemaDataList (schemaDataType, schemaDataList, modifyDate, modifyBy) "
@@ -192,6 +209,8 @@ public class DatabaseUtil {
         preparedStatement.setString(4, userId);
 
         preparedStatement.executeUpdate();
+        
+        closeConnection();
     }
     
     /**
@@ -222,6 +241,15 @@ public class DatabaseUtil {
     }
     
     /**
+     * Method to close the database connection
+     */
+    public static void closeConnection() throws Exception {
+        if(conn != null) {
+            conn.close();
+        }
+    }
+    
+    /**
      * A convenient method for setting the test database
      * connection information in one place
      */
@@ -244,9 +272,6 @@ public class DatabaseUtil {
             // setup connection info
             setupTestDatabaseInfo();
             
-            // get the database connection
-            getConnection();
-
             // get the users
             getUserLoginInfo();
             
@@ -269,11 +294,13 @@ public class DatabaseUtil {
 
                 for (String info : fieldInfo) {
                     String[] sa = info.split("\\s*,\\s*");
-                    String name = sa[0];
-                    String type = sa[1];
+                    if(sa.length == 2) {
+                        String name = sa[0];
+                        String type = sa[1];
 
-                    SchemaDataField schemaDataField = new SchemaDataField(name, type);
-                    schemaDataFields.add(schemaDataField);
+                        SchemaDataField schemaDataField = new SchemaDataField(name, type);
+                        schemaDataFields.add(schemaDataField);
+                    }
                 }
 
                 SchemaData schemaData = new SchemaData(schemaName, schemaDataFields);

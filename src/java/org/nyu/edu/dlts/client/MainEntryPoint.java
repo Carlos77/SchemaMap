@@ -142,7 +142,7 @@ public class MainEntryPoint implements IsWidget, EntryPoint {
 
         BoxLayoutData flex = new BoxLayoutData(new Margins(0, 5, 0, 0));
         flex.setFlex(1);
-        HTML html = new HTML("<b>Archives Space Schema Mapper</b> v0.4 (11/26/2012)");
+        HTML html = new HTML("<b>Archives Space Schema Mapper</b> v0.5 (12/04/2012)");
         container.add(html, flex);
         
         // add the html that hold the login information
